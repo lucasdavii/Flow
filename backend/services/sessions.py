@@ -154,7 +154,7 @@ def _validate_payload(payload: Any) -> dict[str, Any]:
             raise ValidationError("Toda etapa deve ter position inteiro.")
 
         stage_type = stage.get("type")
-        if stage_type not in VALID_STAGE_TYPES:
+        if not isinstance(stage_type, str) or stage_type not in VALID_STAGE_TYPES:
             raise ValidationError(
                 "O tipo da etapa deve ser digital, presential ou conclusion."
             )
@@ -181,7 +181,7 @@ def _validate_payload(payload: Any) -> dict[str, Any]:
             raise ValidationError(f"A função {index + 1} deve ser um objeto JSON.")
 
         role_type = role.get("type")
-        if role_type not in VALID_ROLE_TYPES:
+        if not isinstance(role_type, str) or role_type not in VALID_ROLE_TYPES:
             raise ValidationError("O tipo da função deve ser digital ou presential.")
 
         name = _required_text(role.get("name"), "roles[].name")

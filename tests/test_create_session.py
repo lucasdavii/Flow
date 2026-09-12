@@ -1,5 +1,6 @@
 import hashlib
 import re
+from copy import deepcopy
 
 import pytest
 
@@ -211,3 +212,16 @@ def test_create_session_returns_json_error_when_database_is_unavailable(monkeypa
             "message": "Não foi possível concluir a operação. Tente novamente.",
         },
     }
+
+
+@pytest.mark.parametrize("field", ["stages", "roles"])
+@pytest.mark.parametrize("invalid_type", [[], {}])
+def test_create_rejects_non_string_types_with_json_error(field, invalid_type):
+    payload = deepcopy(VALID_PAYLOAD)
+    payload[field][0]["type"] = invalid_type
+    response = create_app().test_client().post("/api/sessions", json=payload)
+    assert response.status_code == 400
+    body = response.get_json()
+    assert body["ok"] is False
+    assert body["data"] is None
+    assert body["error"]["code"] == "VALIDATION_ERROR"
