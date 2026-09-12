@@ -42,6 +42,18 @@ class SessionAlreadyStartedError(RuntimeError):
     """Indica que a entrada ocorreu depois do estado waiting."""
 
 
+class SessionStateError(RuntimeError):
+    """Indica uma falha inesperada ao consultar o estado da sessão."""
+
+
+class ParticipantTokenRequiredError(PermissionError):
+    """Indica que a consulta não recebeu a credencial do participante."""
+
+
+class InvalidParticipantTokenError(PermissionError):
+    """Indica que a credencial não pertence a um aluno da sessão."""
+
+
 def _required_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"O campo {field_name} é obrigatório.")
@@ -343,4 +355,151 @@ def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any
         },
         "participant_token": participant_token,
         "session_status": session["status"],
+    }
+
+
+def _load_session_state(database: Any, code: str) -> dict[str, Any]:
+    try:
+        response = (
+            database.table("sessions")
+            .select(
+                "id,code,activity_title,status,"
+                "current_stage:stages!sessions_current_stage_fk("
+                "id,position,title,type,instructions)"
+            )
+            .eq("code", code)
+            .limit(1)
+            .execute()
+        )
+    except Exception as error:
+        raise SessionStateError from error
+
+    if not response.data:
+        raise SessionNotFoundError
+    return response.data[0]
+
+
+def _load_authenticated_participant(
+    database: Any, session_id: str, participant_token: str
+) -> dict[str, Any]:
+    try:
+        response = (
+            database.table("participants")
+            .select(
+                "id,name,group_number,"
+                "role:roles!participants_role_id_fkey("
+                "id,name,type,description)"
+            )
+            .eq("session_id", session_id)
+            # A comparação acontece com o hash para que o token bruto nunca
+            # seja armazenado nem usado como filtro visível no banco.
+            .eq("participant_token_hash", _hash_token(participant_token))
+            .limit(1)
+            .execute()
+        )
+    except Exception as error:
+        raise SessionStateError from error
+
+    if not response.data:
+        raise InvalidParticipantTokenError
+    return response.data[0]
+
+
+def _load_group_members(
+    database: Any, session_id: str, group_number: int
+) -> list[dict[str, Any]]:
+    try:
+        response = (
+            database.table("participants")
+            .select("id,name,role:roles!participants_role_id_fkey(name)")
+            .eq("session_id", session_id)
+            .eq("group_number", group_number)
+            # A ordem estável evita que a lista fique mudando a cada polling.
+            .order("created_at")
+            .order("id")
+            .execute()
+        )
+    except Exception as error:
+        raise SessionStateError from error
+
+    try:
+        return [
+            {
+                "id": member["id"],
+                "name": member["name"],
+                "role_name": member["role"]["name"],
+            }
+            for member in response.data
+        ]
+    except (KeyError, TypeError) as error:
+        raise SessionStateError from error
+
+
+def _has_completed_stage(
+    database: Any, participant_id: str, stage_id: str | None
+) -> bool:
+    if stage_id is None:
+        return False
+
+    try:
+        response = (
+            database.table("role_completions")
+            .select("id")
+            .eq("participant_id", participant_id)
+            .eq("stage_id", stage_id)
+            .limit(1)
+            .execute()
+        )
+    except Exception as error:
+        raise SessionStateError from error
+    return bool(response.data)
+
+
+def get_session_state(
+    code: Any, participant_token: Any, database: Any = None
+) -> dict[str, Any]:
+    """Retorna a visão atual da sessão autorizada para um participante."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(participant_token, str) or not participant_token.strip():
+        raise ParticipantTokenRequiredError
+
+    client = _get_database(database, SessionStateError)
+    session = _load_session_state(client, normalized_code)
+    participant = _load_authenticated_participant(
+        client, session["id"], participant_token.strip()
+    )
+
+    current_stage = session.get("current_stage")
+    role = participant.get("role")
+    if role is None:
+        raise SessionStateError
+
+    members = _load_group_members(
+        client, session["id"], participant["group_number"]
+    )
+    completed = _has_completed_stage(
+        client,
+        participant["id"],
+        current_stage["id"] if current_stage else None,
+    )
+
+    return {
+        "session": {
+            "id": session["id"],
+            "code": session["code"],
+            "activity_title": session["activity_title"],
+            "status": session["status"],
+            "current_stage": current_stage,
+        },
+        "participant": {
+            "id": participant["id"],
+            "name": participant["name"],
+            "group_number": participant["group_number"],
+            "role": role,
+            "current_stage_completed": completed,
+        },
+        "group": {
+            "number": participant["group_number"],
+            "members": members,
+        },
     }
