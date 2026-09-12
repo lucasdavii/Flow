@@ -4,6 +4,7 @@ import hashlib
 import logging
 import re
 import secrets
+from datetime import datetime, timezone
 from typing import Any
 
 from backend.db import get_supabase
@@ -52,6 +53,22 @@ class ParticipantTokenRequiredError(PermissionError):
 
 class InvalidParticipantTokenError(PermissionError):
     """Indica que a credencial não pertence a um aluno da sessão."""
+
+
+class TeacherTokenRequiredError(PermissionError):
+    """Indica que a operação não recebeu a credencial do professor."""
+
+
+class InvalidTeacherTokenError(PermissionError):
+    """Indica que a credencial não pertence ao professor da sessão."""
+
+
+class SessionHasNoParticipantsError(RuntimeError):
+    """Indica que a sessão ainda não tem alunos para iniciar."""
+
+
+class SessionStartError(RuntimeError):
+    """Indica uma falha inesperada ao iniciar a sessão."""
 
 
 def _required_text(value: Any, field_name: str) -> str:
@@ -502,4 +519,92 @@ def get_session_state(
             "number": participant["group_number"],
             "members": members,
         },
+    }
+
+
+def start_session(
+    code: Any, teacher_token: Any, database: Any = None
+) -> dict[str, Any]:
+    """Autoriza o professor e inicia uma sessão waiting com alunos."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(teacher_token, str) or not teacher_token.strip():
+        raise TeacherTokenRequiredError
+
+    client = _get_database(database, SessionStartError)
+    try:
+        response = (
+            client.table("sessions")
+            .select("id,code,status,teacher_token_hash")
+            .eq("code", normalized_code)
+            .limit(1)
+            .execute()
+        )
+        if not response.data:
+            raise SessionNotFoundError
+        session = response.data[0]
+        if not secrets.compare_digest(
+            session["teacher_token_hash"], _hash_token(teacher_token.strip())
+        ):
+            raise InvalidTeacherTokenError
+        if session["status"] != "waiting":
+            raise SessionAlreadyStartedError
+
+        participants = (
+            client.table("participants")
+            .select("id")
+            .eq("session_id", session["id"])
+            .limit(1)
+            .execute()
+        )
+        if not participants.data:
+            raise SessionHasNoParticipantsError
+
+        stages = (
+            client.table("stages")
+            .select("id,position,title,type,instructions")
+            .eq("session_id", session["id"])
+            .eq("position", 1)
+            .limit(1)
+            .execute()
+        )
+        if not stages.data:
+            raise SessionStartError
+        stage = stages.data[0]
+
+        # Somente uma chamada pode iniciar; as demais não devem reiniciar
+        # uma sessão que já esteja em andamento.
+        updated = (
+            client.table("sessions")
+            .update({
+                "status": "active",
+                "current_stage_id": stage["id"],
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            })
+            .eq("id", session["id"])
+            .eq("status", "waiting")
+            .execute()
+        )
+        if not updated.data:
+            raise SessionAlreadyStartedError
+    except (
+        SessionNotFoundError,
+        InvalidTeacherTokenError,
+        SessionAlreadyStartedError,
+        SessionHasNoParticipantsError,
+        SessionStartError,
+    ):
+        raise
+    except Exception as error:
+        raise SessionStartError from error
+
+    return {
+        "session": {
+            "id": session["id"],
+            "code": session["code"],
+            "status": "active",
+            "current_stage": {
+                field: stage[field]
+                for field in ("id", "position", "title", "type", "instructions")
+            },
+        }
     }

@@ -4,17 +4,22 @@ from flask import Blueprint, current_app, jsonify, request
 
 from backend.services.sessions import (
     InvalidParticipantTokenError,
+    InvalidTeacherTokenError,
     JoinSessionError,
     ParticipantTokenRequiredError,
     SessionAlreadyStartedError,
     SessionCodeGenerationError,
     SessionCreationError,
+    SessionHasNoParticipantsError,
     SessionNotFoundError,
     SessionStateError,
+    SessionStartError,
+    TeacherTokenRequiredError,
     ValidationError,
     create_session,
     get_session_state,
     join_session,
+    start_session,
 )
 
 sessions_blueprint = Blueprint("sessions", __name__)
@@ -122,6 +127,38 @@ def get_session_state_route(code: str):
         )
     except SessionStateError:
         current_app.logger.exception("Não foi possível consultar a sessão.")
+        return internal_error_response()
+
+    return jsonify({"ok": True, "data": data, "error": None}), 200
+
+
+@sessions_blueprint.post("/sessions/<string:code>/start")
+def post_session_start(code: str):
+    """Inicia a primeira etapa mediante autorização do professor."""
+    try:
+        data = start_session(code, request.headers.get("X-Teacher-Token"))
+    except TeacherTokenRequiredError:
+        return error_response(
+            "TEACHER_TOKEN_REQUIRED", "Informe o token do professor.", 401
+        )
+    except InvalidTeacherTokenError:
+        return error_response(
+            "INVALID_TEACHER_TOKEN", "Token do professor inválido.", 401
+        )
+    except (SessionNotFoundError, ValidationError):
+        return error_response("SESSION_NOT_FOUND", "Sessão não encontrada.", 404)
+    except SessionAlreadyStartedError:
+        return error_response(
+            "SESSION_ALREADY_STARTED", "Esta sessão já foi iniciada.", 409
+        )
+    except SessionHasNoParticipantsError:
+        return error_response(
+            "SESSION_HAS_NO_PARTICIPANTS",
+            "Aguarde a entrada de pelo menos um participante para iniciar.",
+            409,
+        )
+    except SessionStartError:
+        current_app.logger.exception("Não foi possível iniciar a sessão.")
         return internal_error_response()
 
     return jsonify({"ok": True, "data": data, "error": None}), 200
