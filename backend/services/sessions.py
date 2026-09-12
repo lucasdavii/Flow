@@ -104,6 +104,15 @@ class SessionResultsError(RuntimeError):
 def _required_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"O campo {field_name} é obrigatório.")
+    # PostgreSQL não aceita NUL e o transporte JSON exige UTF-8 válido.
+    if "\x00" in value:
+        raise ValidationError(f"O campo {field_name} contém caracteres inválidos.")
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        raise ValidationError(
+            f"O campo {field_name} contém caracteres inválidos."
+        ) from None
     return value.strip()
 
 
@@ -430,6 +439,10 @@ def _load_authenticated_participant(
     database: Any, session_id: str, participant_token: str
 ) -> dict[str, Any]:
     try:
+        token_hash = _hash_token(participant_token)
+    except UnicodeEncodeError:
+        raise InvalidParticipantTokenError from None
+    try:
         response = (
             database.table("participants")
             .select(
@@ -440,7 +453,7 @@ def _load_authenticated_participant(
             .eq("session_id", session_id)
             # A comparação acontece com o hash para que o token bruto nunca
             # seja armazenado nem usado como filtro visível no banco.
-            .eq("participant_token_hash", _hash_token(participant_token))
+            .eq("participant_token_hash", token_hash)
             .limit(1)
             .execute()
         )
@@ -630,6 +643,10 @@ def start_session(
 def _load_teacher_session(
     database: Any, code: str, teacher_token: str
 ) -> dict[str, Any]:
+    try:
+        token_hash = _hash_token(teacher_token)
+    except UnicodeEncodeError:
+        raise InvalidTeacherTokenError from None
     response = (
         database.table("sessions")
         .select("id,code,activity_title,status,current_stage_id,teacher_token_hash")
@@ -641,7 +658,7 @@ def _load_teacher_session(
         raise SessionNotFoundError
     session = response.data[0]
     if not secrets.compare_digest(
-        session["teacher_token_hash"], _hash_token(teacher_token)
+        session["teacher_token_hash"], token_hash
     ):
         raise InvalidTeacherTokenError
     return session

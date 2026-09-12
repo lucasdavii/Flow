@@ -1,6 +1,7 @@
 """Rotas HTTP relacionadas a sessões."""
 
 from flask import Blueprint, current_app, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 from backend.services.sessions import (
     InvalidParticipantTokenError,
@@ -36,6 +37,14 @@ from backend.services.sessions import (
 sessions_blueprint = Blueprint("sessions", __name__)
 
 
+def _json_payload():
+    """Trata JSON excessivamente aninhado como corpo inválido."""
+    try:
+        return request.get_json(silent=True)
+    except RecursionError:
+        return None
+
+
 def error_response(code: str, message: str, status_code: int):
     """Cria o envelope de erro definido no contrato da API."""
     return (
@@ -61,10 +70,19 @@ def internal_error_response():
     )
 
 
+@sessions_blueprint.errorhandler(Exception)
+def unexpected_api_error(error):
+    """Mantém o envelope do contrato quando uma falha não foi antecipada."""
+    if isinstance(error, HTTPException):
+        return error
+    current_app.logger.exception("Falha inesperada ao processar a operação da API.")
+    return internal_error_response()
+
+
 @sessions_blueprint.post("/sessions")
 def post_session():
     """Cria uma sessão, suas etapas e funções."""
-    payload = request.get_json(silent=True)
+    payload = _json_payload()
 
     try:
         data = create_session(payload)
@@ -87,7 +105,7 @@ def post_session():
 @sessions_blueprint.post("/sessions/<string:code>/join")
 def post_session_join(code: str):
     """Insere um aluno e devolve sua atribuição e token individual."""
-    payload = request.get_json(silent=True)
+    payload = _json_payload()
 
     try:
         data = join_session(code, payload)
@@ -207,7 +225,7 @@ def post_complete_role(code: str):
     try:
         data = complete_role(
             code, request.headers.get("X-Participant-Token"),
-            request.get_json(silent=True),
+            _json_payload(),
         )
     except ValidationError as error:
         return error_response("VALIDATION_ERROR", str(error), 400)
@@ -239,7 +257,7 @@ def post_submission(code: str):
     try:
         data = submit_conclusion(
             code, request.headers.get("X-Participant-Token"),
-            request.get_json(silent=True),
+            _json_payload(),
         )
     except ValidationError as error:
         return error_response("VALIDATION_ERROR", str(error), 400)
