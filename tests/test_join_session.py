@@ -16,6 +16,12 @@ class FakeResult:
         self.count = count
 
 
+class FakeRPCError(RuntimeError):
+    def __init__(self, code):
+        super().__init__(code)
+        self.code = code
+
+
 class FakeQuery:
     def __init__(self, database, table_name, action, values=None, count=None):
         self.database = database
@@ -74,6 +80,40 @@ class FakeTable:
         return FakeQuery(self.database, self.table_name, "insert", values=values)
 
 
+class FakeRPC:
+    def __init__(self, database, values):
+        self.database = database
+        self.values = values
+
+    def execute(self):
+        if self.database.fail:
+            raise RuntimeError("Falha simulada")
+        if not self.database.rows["sessions"]:
+            raise FakeRPCError("P0001")
+        session = self.database.rows["sessions"][0]
+        if session["status"] != "waiting":
+            raise FakeRPCError("P0002")
+        participants = self.database.rows["participants"]
+        role = self.database.rows["roles"][len(participants) % 2]
+        participant = {
+            "id": "f5168159-a39a-4c93-aa57-4e65fbf61224",
+            "name": self.values["p_name"],
+            "group_number": len(participants) // session["group_size"] + 1,
+            "role": role,
+        }
+        self.database.inserted_participant = {
+            "session_id": session["id"],
+            "role_id": role["id"],
+            "name": participant["name"],
+            "group_number": participant["group_number"],
+            "participant_token_hash": self.values["p_token_hash"],
+        }
+        return FakeResult({
+            "participant": participant,
+            "session_status": session["status"],
+        })
+
+
 class FakeDatabase:
     def __init__(self, status="waiting", include_session=True, participant_count=0):
         self.fail = False
@@ -117,6 +157,9 @@ class FakeDatabase:
 
     def table(self, table_name):
         return FakeTable(self, table_name)
+
+    def rpc(self, _name, values):
+        return FakeRPC(self, values)
 
 
 def install_fake_database(monkeypatch, database):

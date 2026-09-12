@@ -125,4 +125,101 @@ grant select, insert, update, delete on table public.participants to service_rol
 grant select, insert, update, delete on table public.role_completions to service_role;
 grant select, insert, update, delete on table public.submissions to service_role;
 
+create or replace function public.join_session_atomic(
+    p_code text,
+    p_name text,
+    p_token_hash text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    locked_session public.sessions%rowtype;
+    participant_count bigint;
+    role_count bigint;
+    selected_role public.roles%rowtype;
+    inserted_participant public.participants%rowtype;
+    position_in_group integer;
+begin
+    select *
+      into locked_session
+      from public.sessions
+     where code = upper(btrim(p_code))
+     for update;
+
+    if not found then
+        raise exception using
+            errcode = 'P0001',
+            message = 'SESSION_NOT_FOUND';
+    end if;
+
+    if locked_session.status <> 'waiting' then
+        raise exception using
+            errcode = 'P0002',
+            message = 'SESSION_ALREADY_STARTED';
+    end if;
+
+    select count(*)
+      into participant_count
+      from public.participants
+     where session_id = locked_session.id;
+
+    position_in_group := (participant_count % locked_session.group_size)::integer;
+    select count(*)
+      into role_count
+      from public.roles
+     where session_id = locked_session.id;
+
+    if role_count = 0 then
+        raise exception using
+            errcode = 'P0003',
+            message = 'SESSION_HAS_NO_ROLES';
+    end if;
+
+    select *
+      into selected_role
+      from public.roles
+     where session_id = locked_session.id
+     order by created_at, id
+     offset (position_in_group % role_count)
+     limit 1;
+
+    insert into public.participants (
+        session_id,
+        role_id,
+        name,
+        group_number,
+        participant_token_hash
+    )
+    values (
+        locked_session.id,
+        selected_role.id,
+        p_name,
+        (participant_count / locked_session.group_size)::integer + 1,
+        p_token_hash
+    )
+    returning * into inserted_participant;
+
+    return jsonb_build_object(
+        'participant', jsonb_build_object(
+            'id', inserted_participant.id,
+            'name', inserted_participant.name,
+            'group_number', inserted_participant.group_number,
+            'role', jsonb_build_object(
+                'id', selected_role.id,
+                'name', selected_role.name,
+                'type', selected_role.type,
+                'description', selected_role.description
+            )
+        ),
+        'session_status', locked_session.status
+    );
+end;
+$$;
+
+revoke all on function public.join_session_atomic(text, text, text) from public;
+grant execute on function public.join_session_atomic(text, text, text) to service_role;
+
 commit;

@@ -111,6 +111,61 @@ def environment(monkeypatch):
             return httpx.Response(500, json={
                 "code": "XX000", "message": "Detalhes internos do banco",
             })
+        if request.method == "POST" and request.url.path.endswith(
+            "/rpc/join_session_atomic"
+        ):
+            values = json.loads(request.content)
+            code = values["p_code"]
+            session = next(
+                (row for row in state["rows"]["sessions"]
+                 if row["code"] == code),
+                None,
+            )
+            if session is None:
+                return httpx.Response(
+                    400, json={"code": "P0001", "message": "SESSION_NOT_FOUND"}
+                )
+            if session["status"] != "waiting":
+                return httpx.Response(
+                    400,
+                    json={"code": "P0002", "message": "SESSION_ALREADY_STARTED"},
+                )
+            participants = [
+                row for row in state["rows"]["participants"]
+                if row["session_id"] == session["id"]
+            ]
+            roles = [
+                row for row in state["rows"]["roles"]
+                if row["session_id"] == session["id"]
+            ]
+            position = len(participants) % session["group_size"]
+            role = sorted(
+                roles, key=lambda row: (row.get("created_at", ""), row["id"])
+            )[position % len(roles)]
+            row = {
+                "id": str(uuid4()),
+                "session_id": session["id"],
+                "role_id": role["id"],
+                "name": values["p_name"],
+                "group_number": len(participants) // session["group_size"] + 1,
+                "participant_token_hash": values["p_token_hash"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            state["rows"]["participants"].append(row)
+            return httpx.Response(200, json={
+                "participant": {
+                    "id": row["id"],
+                    "name": row["name"],
+                    "group_number": row["group_number"],
+                    "role": {
+                        "id": role["id"],
+                        "name": role["name"],
+                        "type": role["type"],
+                        "description": role["description"],
+                    },
+                },
+                "session_status": session["status"],
+            })
         if request.method == "PATCH" and state["concurrent_start"]:
             state["rows"]["sessions"][0].update(
                 status="active", current_stage_id="later-stage"

@@ -1,8 +1,7 @@
-"""Falhas conhecidas de concorrência reproduzidas sem acessar banco real.
+"""Regressões de concorrência reproduzidas sem acessar banco real.
 
-O gancho intercala requisições entre a leitura e a gravação via MockTransport.
-As expectativas descrevem a consistência desejada; xfail mantém as limitações
-visíveis até a alocação e a validação de estado serem transacionais no banco.
+O transporte simulado exerce a RPC de entrada atômica e mantém os cenários
+de operações sobrepostas ainda fora do escopo desta correção como xfail.
 """
 
 from collections import Counter
@@ -14,17 +13,15 @@ from tests.session_database import (
 )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A contagem e a inserção do aluno precisam de transação por sessão.",
-)
 def test_concurrent_joins_respect_group_size(environment):
     client, state = environment
     state["rows"]["sessions"][0]["group_size"] = 2
     concurrent_responses = []
 
     def join_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/participants"):
+        if request.method == "POST" and request.url.path.endswith(
+            "/rpc/join_session_atomic"
+        ):
             state["before_request"] = None
             concurrent_responses.append(client.post(
                 "/api/sessions/K7P2X/join", json={"name": "Aluno B"}
