@@ -1,8 +1,6 @@
 """Regras de negócio para criação e gerenciamento de sessões."""
 
-import ast
 import hashlib
-import json
 import logging
 import re
 import secrets
@@ -357,23 +355,13 @@ def _count_participants(database: Any, session_id: str) -> int:
     return response.count if response.count is not None else len(response.data)
 
 
-def _rpc_error_code(error: Exception) -> str:
-    code = str(getattr(error, "code", "") or "").upper()
-    if code not in {"", "400"}:
-        return code
-    details = getattr(error, "details", "")
-    if isinstance(details, str) and details.startswith("b'"):
-        try:
-            details = ast.literal_eval(details).decode("utf-8")
-        except (SyntaxError, UnicodeDecodeError, ValueError):
+def _join_database_error_code(error: Exception) -> str | None:
+    """Traduz somente os erros de negócio emitidos pela função transacional."""
+    error_text = f"{getattr(error, 'message', '')} {error}".upper()
+    for code in ("SESSION_NOT_FOUND", "SESSION_ALREADY_STARTED"):
+        if code in error_text:
             return code
-    try:
-        body = json.loads(
-            details.decode("utf-8") if isinstance(details, bytes) else details
-        )
-    except (TypeError, UnicodeDecodeError, json.JSONDecodeError):
-        return code
-    return str(body.get("code", code)).upper()
+    return None
 
 
 def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any]:
@@ -386,47 +374,48 @@ def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any
     client = _get_database(database, JoinSessionError)
     participant_token = secrets.token_urlsafe(32)
     try:
-        response = client.rpc(
-            "join_session_atomic",
-            {
-                "p_code": normalized_code,
-                "p_name": name,
-                # O token bruto volta ao aluno uma vez; um vazamento do
-                # banco não deve permitir reutilizar a credencial original.
-                "p_token_hash": _hash_token(participant_token),
-            },
-        ).execute()
+        response = (
+            # A função mantém leitura, distribuição de grupo e inserção na
+            # mesma transação para impedir vagas duplicadas sob concorrência.
+            client.rpc(
+                "join_session_atomic",
+                {
+                    "p_session_code": normalized_code,
+                    "p_name": name,
+                    # O token bruto volta ao aluno uma vez; um vazamento do
+                    # banco não deve permitir reutilizar a credencial original.
+                    "p_token_hash": _hash_token(participant_token),
+                },
+            )
+            .execute()
+        )
     except Exception as error:
-        error_code = _rpc_error_code(error)
-        if error_code == "P0001":
+        error_code = _join_database_error_code(error)
+        if error_code == "SESSION_NOT_FOUND":
             raise SessionNotFoundError from error
-        if error_code == "P0002":
+        if error_code == "SESSION_ALREADY_STARTED":
             raise SessionAlreadyStartedError from error
         raise JoinSessionError from error
 
-    if not response.data or not isinstance(response.data, dict):
+    if not response.data:
         raise JoinSessionError
+    result = response.data[0]
 
-    try:
-        participant = response.data["participant"]
-        role = participant["role"]
-        return {
-            "participant": {
-                "id": participant["id"],
-                "name": participant["name"],
-                "group_number": participant["group_number"],
-                "role": {
-                    "id": role["id"],
-                    "name": role["name"],
-                    "type": role["type"],
-                    "description": role["description"],
-                },
+    return {
+        "participant": {
+            "id": result["participant_id"],
+            "name": result["participant_name"],
+            "group_number": result["group_number"],
+            "role": {
+                "id": result["role_id"],
+                "name": result["role_name"],
+                "type": result["role_type"],
+                "description": result["role_description"],
             },
-            "participant_token": participant_token,
-            "session_status": response.data["session_status"],
-        }
-    except (KeyError, TypeError) as error:
-        raise JoinSessionError from error
+        },
+        "participant_token": participant_token,
+        "session_status": result["session_status"],
+    }
 
 
 def _load_session_state(database: Any, code: str) -> dict[str, Any]:

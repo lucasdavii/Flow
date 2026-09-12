@@ -16,10 +16,10 @@ class FakeResult:
         self.count = count
 
 
-class FakeRPCError(RuntimeError):
-    def __init__(self, code):
-        super().__init__(code)
-        self.code = code
+class FakeDatabaseError(RuntimeError):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
 
 
 class FakeQuery:
@@ -80,7 +80,7 @@ class FakeTable:
         return FakeQuery(self.database, self.table_name, "insert", values=values)
 
 
-class FakeRPC:
+class FakeRpcQuery:
     def __init__(self, database, values):
         self.database = database
         self.values = values
@@ -88,30 +88,45 @@ class FakeRPC:
     def execute(self):
         if self.database.fail:
             raise RuntimeError("Falha simulada")
-        if not self.database.rows["sessions"]:
-            raise FakeRPCError("P0001")
-        session = self.database.rows["sessions"][0]
+
+        session = next(
+            (
+                row for row in self.database.rows["sessions"]
+                if row["code"] == self.values["p_session_code"]
+            ),
+            None,
+        )
+        if session is None:
+            raise FakeDatabaseError("SESSION_NOT_FOUND")
         if session["status"] != "waiting":
-            raise FakeRPCError("P0002")
-        participants = self.database.rows["participants"]
-        role = self.database.rows["roles"][len(participants) % 2]
+            raise FakeDatabaseError("SESSION_ALREADY_STARTED")
+
+        roles = sorted(
+            self.database.rows["roles"],
+            key=lambda role: (role["created_at"], role["id"]),
+        )
+        participant_count = len(self.database.rows["participants"])
+        role = roles[(participant_count % session["group_size"]) % len(roles)]
         participant = {
             "id": "f5168159-a39a-4c93-aa57-4e65fbf61224",
-            "name": self.values["p_name"],
-            "group_number": len(participants) // session["group_size"] + 1,
-            "role": role,
-        }
-        self.database.inserted_participant = {
             "session_id": session["id"],
             "role_id": role["id"],
-            "name": participant["name"],
-            "group_number": participant["group_number"],
+            "name": self.values["p_name"],
+            "group_number": participant_count // session["group_size"] + 1,
             "participant_token_hash": self.values["p_token_hash"],
         }
-        return FakeResult({
-            "participant": participant,
+        self.database.inserted_participant = participant
+        self.database.rows["participants"].append(participant)
+        return FakeResult([{
+            "participant_id": participant["id"],
+            "participant_name": participant["name"],
+            "group_number": participant["group_number"],
+            "role_id": role["id"],
+            "role_name": role["name"],
+            "role_type": role["type"],
+            "role_description": role["description"],
             "session_status": session["status"],
-        })
+        }])
 
 
 class FakeDatabase:
@@ -158,8 +173,9 @@ class FakeDatabase:
     def table(self, table_name):
         return FakeTable(self, table_name)
 
-    def rpc(self, _name, values):
-        return FakeRPC(self, values)
+    def rpc(self, function_name, values):
+        assert function_name == "join_session_atomic"
+        return FakeRpcQuery(self, values)
 
 
 def install_fake_database(monkeypatch, database):
