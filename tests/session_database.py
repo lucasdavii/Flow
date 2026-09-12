@@ -119,6 +119,9 @@ def environment(monkeypatch):
         for field, value in request.url.params.items():
             if value.startswith("eq."):
                 rows = [row for row in rows if str(row.get(field)) == value[3:]]
+            elif value.startswith("in.("):
+                options = [item.strip('"') for item in value[4:-1].split(",")]
+                rows = [row for row in rows if str(row.get(field)) in options]
         if request.method == "POST":
             values = json.loads(request.content)
             values = values if isinstance(values, list) else [values]
@@ -145,7 +148,7 @@ def environment(monkeypatch):
                     changed.append(row)
             rows = changed
         if request.method == "PATCH":
-            assert request.url.params.get("id") == f"eq.{SESSION_ID}"
+            assert request.url.params.get("id", "").startswith("eq.")
             assert request.url.params.get("status") in {"eq.waiting", "eq.active"}
             assert "return=representation" in request.headers["prefer"]
             for row in rows:

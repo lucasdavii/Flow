@@ -15,6 +15,7 @@ from backend.services.sessions import (
     SessionHasNoParticipantsError,
     SessionNotActiveError,
     SessionNotFoundError,
+    SessionResultsError,
     SessionStateError,
     SessionStartError,
     StageNotCurrentError,
@@ -25,6 +26,7 @@ from backend.services.sessions import (
     advance_session,
     complete_role,
     create_session,
+    get_session_results,
     get_session_state,
     join_session,
     start_session,
@@ -260,5 +262,26 @@ def post_submission(code: str):
         )
     except SubmissionError:
         current_app.logger.exception("Não foi possível enviar a conclusão do grupo.")
+        return internal_error_response()
+    return jsonify({"ok": True, "data": data, "error": None}), 200
+
+
+@sessions_blueprint.get("/sessions/<string:code>/results")
+def get_session_results_route(code: str):
+    """Entrega os resultados agrupados ao professor da sessão."""
+    try:
+        data = get_session_results(code, request.headers.get("X-Teacher-Token"))
+    except TeacherTokenRequiredError:
+        return error_response(
+            "TEACHER_TOKEN_REQUIRED", "Informe o token do professor.", 401
+        )
+    except InvalidTeacherTokenError:
+        return error_response(
+            "INVALID_TEACHER_TOKEN", "Token do professor inválido.", 401
+        )
+    except (SessionNotFoundError, ValidationError):
+        return error_response("SESSION_NOT_FOUND", "Sessão não encontrada.", 404)
+    except SessionResultsError:
+        current_app.logger.exception("Não foi possível consultar os resultados.")
         return internal_error_response()
     return jsonify({"ok": True, "data": data, "error": None}), 200

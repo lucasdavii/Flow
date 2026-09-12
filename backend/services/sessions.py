@@ -4,6 +4,7 @@ import hashlib
 import logging
 import re
 import secrets
+from collections import Counter
 from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
@@ -94,6 +95,10 @@ class SubmissionNotAllowedError(RuntimeError):
 
 class SubmissionError(RuntimeError):
     """Indica uma falha inesperada ao gravar a conclusão do grupo."""
+
+
+class SessionResultsError(RuntimeError):
+    """Indica uma falha inesperada ao consultar os resultados."""
 
 
 def _required_text(value: Any, field_name: str) -> str:
@@ -627,7 +632,7 @@ def _load_teacher_session(
 ) -> dict[str, Any]:
     response = (
         database.table("sessions")
-        .select("id,code,status,current_stage_id,teacher_token_hash")
+        .select("id,code,activity_title,status,current_stage_id,teacher_token_hash")
         .eq("code", code)
         .limit(1)
         .execute()
@@ -850,3 +855,80 @@ def submit_conclusion(
         raise
     except Exception as error:
         raise SubmissionError from error
+
+
+def _fetch_all(query_factory: Any) -> list[dict[str, Any]]:
+    """Percorre páginas ordenadas, inclusive com limites menores no servidor."""
+    rows = []
+    while True:
+        page = query_factory().range(len(rows), len(rows) + 499).execute().data
+        if not page:
+            return rows
+        rows.extend(page)
+
+
+def get_session_results(
+    code: Any, teacher_token: Any, database: Any = None
+) -> dict[str, Any]:
+    """Agrupa alunos, progresso e conclusões para o professor da sessão."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(teacher_token, str) or not teacher_token.strip():
+        raise TeacherTokenRequiredError
+    client = _get_database(database, SessionResultsError)
+    try:
+        session = _load_teacher_session(client, normalized_code, teacher_token.strip())
+        participants = _fetch_all(lambda: (
+            client.table("participants")
+            .select("id,name,group_number,role:roles!participants_role_id_fkey(name)")
+            .eq("session_id", session["id"])
+            .order("group_number").order("created_at").order("id")
+        ))
+        completed_counts = Counter()
+        # Lotes limitam o tamanho da URL e evitam uma consulta por aluno.
+        participant_ids = [participant["id"] for participant in participants]
+        for offset in range(0, len(participant_ids), 100):
+            batch = participant_ids[offset:offset + 100]
+            completions = _fetch_all(lambda: (
+                client.table("role_completions")
+                .select("participant_id,stage_id")
+                .in_("participant_id", batch)
+                .order("id")
+            ))
+            completed_counts.update(row["participant_id"] for row in completions)
+        submissions = _fetch_all(lambda: (
+            client.table("submissions")
+            .select("id,group_number,content,submitted_by,updated_at")
+            .eq("session_id", session["id"])
+            .order("group_number")
+        ))
+        submissions_by_group = {
+            row["group_number"]: {
+                field: row[field]
+                for field in ("id", "content", "submitted_by", "updated_at")
+            }
+            for row in submissions
+        }
+        groups = {}
+        for participant in participants:
+            number = participant["group_number"]
+            group = groups.setdefault(number, {
+                "number": number, "members": [],
+                "submission": submissions_by_group.get(number),
+            })
+            group["members"].append({
+                "id": participant["id"],
+                "name": participant["name"],
+                "role_name": participant["role"]["name"],
+                "completed_stage_count": completed_counts[participant["id"]],
+            })
+        return {
+            "session": {
+                field: session[field]
+                for field in ("id", "code", "activity_title", "status")
+            },
+            "groups": [groups[number] for number in sorted(groups)],
+        }
+    except (SessionNotFoundError, InvalidTeacherTokenError, SessionResultsError):
+        raise
+    except Exception as error:
+        raise SessionResultsError from error
