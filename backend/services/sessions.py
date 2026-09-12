@@ -6,6 +6,7 @@ import re
 import secrets
 from datetime import datetime, timezone
 from typing import Any
+from uuid import UUID
 
 from backend.db import get_supabase
 
@@ -77,6 +78,14 @@ class SessionNotActiveError(RuntimeError):
 
 class SessionAdvanceError(RuntimeError):
     """Indica uma falha inesperada ao avançar a sessão."""
+
+
+class StageNotCurrentError(RuntimeError):
+    """Indica uma conclusão referente a outra etapa."""
+
+
+class RoleCompletionError(RuntimeError):
+    """Indica uma falha inesperada ao registrar a conclusão da função."""
 
 
 def _required_text(value: Any, field_name: str) -> str:
@@ -710,3 +719,75 @@ def advance_session(
         raise
     except Exception as error:
         raise SessionAdvanceError from error
+
+
+def _active_participant(
+    database: Any, code: str, participant_token: str
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    session = _load_session_state(database, code)
+    participant = _load_authenticated_participant(
+        database, session["id"], participant_token
+    )
+    if session["status"] != "active":
+        raise SessionNotActiveError
+    if session["current_stage"] is None:
+        raise SessionStateError
+    return session, participant
+
+
+def complete_role(
+    code: Any, participant_token: Any, payload: Any, database: Any = None
+) -> dict[str, Any]:
+    """Registra uma única conclusão por aluno e etapa ativa."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(payload, dict):
+        raise ValidationError("Envie um objeto JSON válido.")
+    stage_value = _required_text(payload.get("stage_id"), "stage_id")
+    try:
+        stage_id = str(UUID(stage_value))
+    except ValueError as error:
+        raise ValidationError("O campo stage_id deve ser um UUID válido.") from error
+    if not isinstance(participant_token, str) or not participant_token.strip():
+        raise ParticipantTokenRequiredError
+
+    client = _get_database(database, RoleCompletionError)
+    try:
+        session, participant = _active_participant(
+            client, normalized_code, participant_token.strip()
+        )
+        if session["current_stage"]["id"] != stage_id:
+            raise StageNotCurrentError
+        response = (
+            client.table("role_completions")
+            .upsert(
+                {"participant_id": participant["id"], "stage_id": stage_id},
+                on_conflict="participant_id,stage_id",
+                ignore_duplicates=True,
+            )
+            .execute()
+        )
+        if not response.data:
+            # ON CONFLICT DO NOTHING preserva a primeira data de conclusão,
+            # inclusive quando dois pedidos tentam inserir a mesma marcação.
+            response = (
+                client.table("role_completions")
+                .select("participant_id,stage_id,completed_at")
+                .eq("participant_id", participant["id"])
+                .eq("stage_id", stage_id)
+                .limit(1)
+                .execute()
+            )
+        if not response.data:
+            raise RoleCompletionError
+        completion = response.data[0]
+        return {"completion": {
+            field: completion[field]
+            for field in ("participant_id", "stage_id", "completed_at")
+        }}
+    except (
+        SessionNotFoundError, InvalidParticipantTokenError,
+        SessionNotActiveError, StageNotCurrentError, RoleCompletionError,
+    ):
+        raise
+    except Exception as error:
+        raise RoleCompletionError from error

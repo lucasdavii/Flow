@@ -7,6 +7,7 @@ from backend.services.sessions import (
     InvalidTeacherTokenError,
     JoinSessionError,
     ParticipantTokenRequiredError,
+    RoleCompletionError,
     SessionAdvanceError,
     SessionAlreadyStartedError,
     SessionCodeGenerationError,
@@ -16,9 +17,11 @@ from backend.services.sessions import (
     SessionNotFoundError,
     SessionStateError,
     SessionStartError,
+    StageNotCurrentError,
     TeacherTokenRequiredError,
     ValidationError,
     advance_session,
+    complete_role,
     create_session,
     get_session_state,
     join_session,
@@ -190,4 +193,36 @@ def post_session_next(code: str):
         current_app.logger.exception("Não foi possível avançar a sessão.")
         return internal_error_response()
 
+    return jsonify({"ok": True, "data": data, "error": None}), 200
+
+
+@sessions_blueprint.post("/sessions/<string:code>/complete-role")
+def post_complete_role(code: str):
+    """Marca a função do aluno como concluída na etapa informada."""
+    try:
+        data = complete_role(
+            code, request.headers.get("X-Participant-Token"),
+            request.get_json(silent=True),
+        )
+    except ValidationError as error:
+        return error_response("VALIDATION_ERROR", str(error), 400)
+    except ParticipantTokenRequiredError:
+        return error_response(
+            "PARTICIPANT_TOKEN_REQUIRED", "Informe o token do participante.", 401
+        )
+    except InvalidParticipantTokenError:
+        return error_response(
+            "INVALID_PARTICIPANT_TOKEN", "Token do participante inválido.", 401
+        )
+    except SessionNotFoundError:
+        return error_response("SESSION_NOT_FOUND", "Sessão não encontrada.", 404)
+    except SessionNotActiveError:
+        return error_response("SESSION_NOT_ACTIVE", "Esta sessão não está ativa.", 409)
+    except StageNotCurrentError:
+        return error_response(
+            "STAGE_NOT_CURRENT", "A etapa informada não é a etapa atual.", 409
+        )
+    except RoleCompletionError:
+        current_app.logger.exception("Não foi possível concluir a função.")
+        return internal_error_response()
     return jsonify({"ok": True, "data": data, "error": None}), 200
