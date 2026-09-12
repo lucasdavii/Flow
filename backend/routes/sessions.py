@@ -7,15 +7,18 @@ from backend.services.sessions import (
     InvalidTeacherTokenError,
     JoinSessionError,
     ParticipantTokenRequiredError,
+    SessionAdvanceError,
     SessionAlreadyStartedError,
     SessionCodeGenerationError,
     SessionCreationError,
     SessionHasNoParticipantsError,
+    SessionNotActiveError,
     SessionNotFoundError,
     SessionStateError,
     SessionStartError,
     TeacherTokenRequiredError,
     ValidationError,
+    advance_session,
     create_session,
     get_session_state,
     join_session,
@@ -159,6 +162,32 @@ def post_session_start(code: str):
         )
     except SessionStartError:
         current_app.logger.exception("Não foi possível iniciar a sessão.")
+        return internal_error_response()
+
+    return jsonify({"ok": True, "data": data, "error": None}), 200
+
+
+@sessions_blueprint.post("/sessions/<string:code>/next")
+def post_session_next(code: str):
+    """Avança a etapa ou encerra a sessão mediante autorização do professor."""
+    try:
+        data = advance_session(code, request.headers.get("X-Teacher-Token"))
+    except TeacherTokenRequiredError:
+        return error_response(
+            "TEACHER_TOKEN_REQUIRED", "Informe o token do professor.", 401
+        )
+    except InvalidTeacherTokenError:
+        return error_response(
+            "INVALID_TEACHER_TOKEN", "Token do professor inválido.", 401
+        )
+    except (SessionNotFoundError, ValidationError):
+        return error_response("SESSION_NOT_FOUND", "Sessão não encontrada.", 404)
+    except SessionNotActiveError:
+        return error_response(
+            "SESSION_NOT_ACTIVE", "Esta sessão não está ativa.", 409
+        )
+    except SessionAdvanceError:
+        current_app.logger.exception("Não foi possível avançar a sessão.")
         return internal_error_response()
 
     return jsonify({"ok": True, "data": data, "error": None}), 200

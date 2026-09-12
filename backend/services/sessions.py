@@ -71,6 +71,14 @@ class SessionStartError(RuntimeError):
     """Indica uma falha inesperada ao iniciar a sessão."""
 
 
+class SessionNotActiveError(RuntimeError):
+    """Indica que a operação exige uma sessão ativa."""
+
+
+class SessionAdvanceError(RuntimeError):
+    """Indica uma falha inesperada ao avançar a sessão."""
+
+
 def _required_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"O campo {field_name} é obrigatório.")
@@ -532,20 +540,7 @@ def start_session(
 
     client = _get_database(database, SessionStartError)
     try:
-        response = (
-            client.table("sessions")
-            .select("id,code,status,teacher_token_hash")
-            .eq("code", normalized_code)
-            .limit(1)
-            .execute()
-        )
-        if not response.data:
-            raise SessionNotFoundError
-        session = response.data[0]
-        if not secrets.compare_digest(
-            session["teacher_token_hash"], _hash_token(teacher_token.strip())
-        ):
-            raise InvalidTeacherTokenError
+        session = _load_teacher_session(client, normalized_code, teacher_token.strip())
         if session["status"] != "waiting":
             raise SessionAlreadyStartedError
 
@@ -608,3 +603,110 @@ def start_session(
             },
         }
     }
+
+
+def _load_teacher_session(
+    database: Any, code: str, teacher_token: str
+) -> dict[str, Any]:
+    response = (
+        database.table("sessions")
+        .select("id,code,status,current_stage_id,teacher_token_hash")
+        .eq("code", code)
+        .limit(1)
+        .execute()
+    )
+    if not response.data:
+        raise SessionNotFoundError
+    session = response.data[0]
+    if not secrets.compare_digest(
+        session["teacher_token_hash"], _hash_token(teacher_token)
+    ):
+        raise InvalidTeacherTokenError
+    return session
+
+
+def _load_stage(database: Any, session_id: str, stage_id: str) -> dict[str, Any]:
+    response = (
+        database.table("stages")
+        .select("id,position,title,type,instructions")
+        .eq("session_id", session_id)
+        .eq("id", stage_id)
+        .limit(1)
+        .execute()
+    )
+    if not response.data:
+        raise SessionAdvanceError
+    return response.data[0]
+
+
+def advance_session(
+    code: Any, teacher_token: Any, database: Any = None
+) -> dict[str, Any]:
+    """Avança uma etapa ativa ou finaliza a sessão depois da última."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(teacher_token, str) or not teacher_token.strip():
+        raise TeacherTokenRequiredError
+
+    client = _get_database(database, SessionAdvanceError)
+    try:
+        session = _load_teacher_session(client, normalized_code, teacher_token.strip())
+        if session["status"] != "active":
+            raise SessionNotActiveError
+        if session["current_stage_id"] is None:
+            raise SessionAdvanceError
+        current_stage = _load_stage(client, session["id"], session["current_stage_id"])
+        stages = (
+            client.table("stages")
+            .select("id,position,title,type,instructions")
+            .eq("session_id", session["id"])
+            .eq("position", current_stage["position"] + 1)
+            .limit(1)
+            .execute()
+        )
+        next_stage = stages.data[0] if stages.data else None
+        status = "active" if next_stage else "finished"
+        updated = (
+            client.table("sessions")
+            .update({
+                "status": status,
+                "current_stage_id": next_stage["id"] if next_stage else None,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            })
+            .eq("id", session["id"])
+            .eq("status", "active")
+            .eq("current_stage_id", current_stage["id"])
+            .execute()
+        )
+        if not updated.data:
+            # Outra chamada já avançou esta etapa. Devolve o estado persistido
+            # sem repetir a escrita, que poderia pular uma etapa.
+            session = _load_teacher_session(
+                client, normalized_code, teacher_token.strip()
+            )
+            status = session["status"]
+            if status == "active" and session["current_stage_id"] is not None:
+                next_stage = _load_stage(
+                    client, session["id"], session["current_stage_id"]
+                )
+            elif status == "finished":
+                next_stage = None
+            else:
+                raise SessionAdvanceError
+
+        return {
+            "session": {
+                "id": session["id"],
+                "code": session["code"],
+                "status": status,
+                "current_stage": next_stage,
+            }
+        }
+    except (
+        SessionNotFoundError,
+        InvalidTeacherTokenError,
+        SessionNotActiveError,
+        SessionAdvanceError,
+    ):
+        raise
+    except Exception as error:
+        raise SessionAdvanceError from error
