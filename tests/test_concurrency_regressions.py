@@ -64,10 +64,6 @@ def test_join_rejects_insert_after_concurrent_start(environment):
     assert len(state["rows"]["participants"]) == 1
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A validação da etapa e a conclusão precisam compartilhar transação.",
-)
 def test_completion_rejects_insert_after_concurrent_advance(environment):
     client, state = environment
     state["rows"]["sessions"][0].update(
@@ -75,7 +71,7 @@ def test_completion_rejects_insert_after_concurrent_advance(environment):
     )
 
     def advance_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/role_completions"):
+        if request.method == "POST" and request.url.path.endswith("/complete_role_atomic"):
             state["before_request"] = None
             response = client.post(
                 "/api/sessions/K7P2X/next",

@@ -769,6 +769,18 @@ def _active_participant(
     return session, participant
 
 
+def _completion_database_error_code(error: Exception) -> str | None:
+    """Reconhece apenas conflitos previstos pelo contrato de complete-role."""
+    error_text = f"{getattr(error, 'message', '')} {error}".upper()
+    expected_codes = (
+        "SESSION_NOT_FOUND",
+        "INVALID_PARTICIPANT_TOKEN",
+        "SESSION_NOT_ACTIVE",
+        "STAGE_NOT_CURRENT",
+    )
+    return next((code for code in expected_codes if code in error_text), None)
+
+
 def complete_role(
     code: Any, participant_token: Any, payload: Any, database: Any = None
 ) -> dict[str, Any]:
@@ -784,33 +796,26 @@ def complete_role(
     if not isinstance(participant_token, str) or not participant_token.strip():
         raise ParticipantTokenRequiredError
 
+    try:
+        token_hash = _hash_token(participant_token.strip())
+    except UnicodeEncodeError:
+        raise InvalidParticipantTokenError from None
+
     client = _get_database(database, RoleCompletionError)
     try:
-        session, participant = _active_participant(
-            client, normalized_code, participant_token.strip()
-        )
-        if session["current_stage"]["id"] != stage_id:
-            raise StageNotCurrentError
         response = (
-            client.table("role_completions")
-            .upsert(
-                {"participant_id": participant["id"], "stage_id": stage_id},
-                on_conflict="participant_id,stage_id",
-                ignore_duplicates=True,
+            # A função bloqueia a sessão até validar e gravar, impedindo que
+            # uma troca de etapa aconteça entre essas duas ações.
+            client.rpc(
+                "complete_role_atomic",
+                {
+                    "p_session_code": normalized_code,
+                    "p_participant_token_hash": token_hash,
+                    "p_stage_id": stage_id,
+                },
             )
             .execute()
         )
-        if not response.data:
-            # ON CONFLICT DO NOTHING preserva a primeira data de conclusão,
-            # inclusive quando dois pedidos tentam inserir a mesma marcação.
-            response = (
-                client.table("role_completions")
-                .select("participant_id,stage_id,completed_at")
-                .eq("participant_id", participant["id"])
-                .eq("stage_id", stage_id)
-                .limit(1)
-                .execute()
-            )
         if not response.data:
             raise RoleCompletionError
         completion = response.data[0]
@@ -818,12 +823,18 @@ def complete_role(
             field: completion[field]
             for field in ("participant_id", "stage_id", "completed_at")
         }}
-    except (
-        SessionNotFoundError, InvalidParticipantTokenError,
-        SessionNotActiveError, StageNotCurrentError, RoleCompletionError,
-    ):
-        raise
     except Exception as error:
+        if isinstance(error, RoleCompletionError):
+            raise
+        error_code = _completion_database_error_code(error)
+        if error_code == "SESSION_NOT_FOUND":
+            raise SessionNotFoundError from error
+        if error_code == "INVALID_PARTICIPANT_TOKEN":
+            raise InvalidParticipantTokenError from error
+        if error_code == "SESSION_NOT_ACTIVE":
+            raise SessionNotActiveError from error
+        if error_code == "STAGE_NOT_CURRENT":
+            raise StageNotCurrentError from error
         raise RoleCompletionError from error
 
 

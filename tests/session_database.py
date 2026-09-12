@@ -107,6 +107,41 @@ def environment(monkeypatch):
         state["requests"].append(request)
         if state["before_request"]:
             state["before_request"](request, state)
+        if endpoint == "complete_role_atomic":
+            values = json.loads(request.content)
+            session = next((s for s in state["rows"]["sessions"]
+                            if s["code"] == values["p_session_code"]), None)
+            participant = next((p for p in state["rows"]["participants"]
+                                if session and p["session_id"] == session["id"]
+                                and p["participant_token_hash"] ==
+                                values["p_participant_token_hash"]), None)
+            error = None
+            if session is None:
+                error = "SESSION_NOT_FOUND"
+            elif participant is None:
+                error = "INVALID_PARTICIPANT_TOKEN"
+            elif session["status"] != "active":
+                error = "SESSION_NOT_ACTIVE"
+            elif session["current_stage_id"] != values["p_stage_id"]:
+                error = "STAGE_NOT_CURRENT"
+            if state["fail_at"] == ("POST", endpoint):
+                error = "internal"
+            if error:
+                return httpx.Response(400, json={"code": "P0001", "message": error})
+            completion = next((r for r in state["rows"]["role_completions"]
+                               if r["participant_id"] == participant["id"]
+                               and r["stage_id"] == values["p_stage_id"]), None)
+            if completion is None:
+                completion = {
+                    "id": str(uuid4()), "participant_id": participant["id"],
+                    "stage_id": values["p_stage_id"],
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
+                }
+                state["rows"]["role_completions"].append(completion)
+            return httpx.Response(200, json=[{
+                key: completion[key]
+                for key in ("participant_id", "stage_id", "completed_at")
+            }])
         if endpoint == "join_session_atomic":
             values = json.loads(request.content)
             session = next(
