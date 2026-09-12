@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import re
 import secrets
 from typing import Any
 
@@ -12,6 +13,9 @@ SESSION_CODE_LENGTH = 5
 MAX_CODE_ATTEMPTS = 10
 VALID_STAGE_TYPES = {"digital", "presential", "conclusion"}
 VALID_ROLE_TYPES = {"digital", "presential"}
+SESSION_CODE_PATTERN = re.compile(
+    rf"^[{SESSION_CODE_ALPHABET}]{{{SESSION_CODE_LENGTH}}}$"
+)
 
 
 class ValidationError(ValueError):
@@ -22,10 +26,44 @@ class SessionCreationError(RuntimeError):
     """Indica que não foi possível persistir uma sessão completa."""
 
 
+class SessionCodeGenerationError(SessionCreationError):
+    """Indica que todas as tentativas de gerar código único falharam."""
+
+
+class JoinSessionError(RuntimeError):
+    """Indica uma falha inesperada ao inserir um participante."""
+
+
+class SessionNotFoundError(LookupError):
+    """Indica que o código informado não pertence a uma sessão."""
+
+
+class SessionAlreadyStartedError(RuntimeError):
+    """Indica que a entrada ocorreu depois do estado waiting."""
+
+
 def _required_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"O campo {field_name} é obrigatório.")
     return value.strip()
+
+
+def _get_database(database: Any, error_type: type[RuntimeError]) -> Any:
+    try:
+        return database or get_supabase()
+    except Exception as error:
+        raise error_type from error
+
+
+def _normalize_session_code(code: Any) -> str:
+    if not isinstance(code, str):
+        raise ValidationError("Informe um código de sessão válido.")
+
+    # O código é case-insensitive para reduzir erros de digitação no celular.
+    normalized_code = code.strip().upper()
+    if not SESSION_CODE_PATTERN.fullmatch(normalized_code):
+        raise ValidationError("Informe um código de sessão válido.")
+    return normalized_code
 
 
 def _validate_payload(payload: Any) -> dict[str, Any]:
@@ -143,7 +181,7 @@ def _insert_session(database: Any, session_values: dict[str, Any]) -> dict[str, 
             return response.data[0]
         raise SessionCreationError
 
-    raise SessionCreationError
+    raise SessionCodeGenerationError
 
 
 def _remove_incomplete_session(database: Any, session_id: str) -> None:
@@ -157,10 +195,7 @@ def create_session(payload: Any, database: Any = None) -> dict[str, Any]:
     """Valida e persiste uma sessão completa conforme docs/api.md."""
     values = _validate_payload(payload)
     teacher_token = secrets.token_urlsafe(32)
-    try:
-        client = database or get_supabase()
-    except Exception as error:
-        raise SessionCreationError from error
+    client = _get_database(database, SessionCreationError)
 
     session = _insert_session(
         client,
@@ -196,4 +231,116 @@ def create_session(payload: Any, database: Any = None) -> dict[str, Any]:
             "created_at": session["created_at"],
         },
         "teacher_token": teacher_token,
+    }
+
+
+def _find_waiting_session(database: Any, code: str) -> dict[str, Any]:
+    try:
+        response = (
+            database.table("sessions")
+            .select("id,status,group_size")
+            .eq("code", code)
+            .limit(1)
+            .execute()
+        )
+    except Exception as error:
+        raise JoinSessionError from error
+
+    if not response.data:
+        raise SessionNotFoundError
+
+    session = response.data[0]
+    if session["status"] != "waiting":
+        raise SessionAlreadyStartedError
+    return session
+
+
+def _load_roles(database: Any, session_id: str) -> list[dict[str, Any]]:
+    try:
+        response = (
+            database.table("roles")
+            .select("id,name,type,description")
+            .eq("session_id", session_id)
+            .order("created_at")
+            .order("id")
+            .execute()
+        )
+    except Exception as error:
+        raise JoinSessionError from error
+
+    if not response.data:
+        raise JoinSessionError
+    return response.data
+
+
+def _count_participants(database: Any, session_id: str) -> int:
+    try:
+        response = (
+            database.table("participants")
+            .select("id", count="exact")
+            .eq("session_id", session_id)
+            .execute()
+        )
+    except Exception as error:
+        raise JoinSessionError from error
+
+    return response.count if response.count is not None else len(response.data)
+
+
+def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any]:
+    """Insere um aluno em uma sessão waiting conforme docs/api.md."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(payload, dict):
+        raise ValidationError("Envie um objeto JSON válido.")
+    name = _required_text(payload.get("name"), "name")
+
+    client = _get_database(database, JoinSessionError)
+    session = _find_waiting_session(client, normalized_code)
+    roles = _load_roles(client, session["id"])
+    participant_count = _count_participants(client, session["id"])
+
+    # Grupos são preenchidos sequencialmente. A posição dentro do grupo escolhe
+    # uma função complementar de forma previsível, sem criar tabela de groups.
+    group_number = participant_count // session["group_size"] + 1
+    position_in_group = participant_count % session["group_size"]
+    role = roles[position_in_group % len(roles)]
+
+    participant_token = secrets.token_urlsafe(32)
+    try:
+        response = (
+            client.table("participants")
+            .insert(
+                {
+                    "session_id": session["id"],
+                    "role_id": role["id"],
+                    "name": name,
+                    "group_number": group_number,
+                    # O token bruto volta ao aluno uma vez; um vazamento do
+                    # banco não deve permitir reutilizar a credencial original.
+                    "participant_token_hash": _hash_token(participant_token),
+                }
+            )
+            .execute()
+        )
+    except Exception as error:
+        raise JoinSessionError from error
+
+    if not response.data:
+        raise JoinSessionError
+    participant = response.data[0]
+
+    return {
+        "participant": {
+            "id": participant["id"],
+            "name": participant["name"],
+            "group_number": participant["group_number"],
+            "role": {
+                "id": role["id"],
+                "name": role["name"],
+                "type": role["type"],
+                "description": role["description"],
+            },
+        },
+        "participant_token": participant_token,
+        "session_status": session["status"],
     }

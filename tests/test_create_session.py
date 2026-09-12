@@ -207,7 +207,7 @@ def test_create_session_returns_json_error_when_database_is_unavailable(monkeypa
         "ok": False,
         "data": None,
         "error": {
-            "code": "SESSION_CODE_GENERATION_FAILED",
-            "message": "Não foi possível criar a sessão. Tente novamente.",
+            "code": "INTERNAL_ERROR",
+            "message": "Não foi possível concluir a operação. Tente novamente.",
         },
     }

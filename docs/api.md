@@ -35,7 +35,20 @@ Toda resposta usa um destes envelopes:
 }
 ```
 
-Erros HTTP comuns: `400` para entrada inválida, `401` para token ausente ou inválido, `404` para sessão inexistente, `409` para conflito de estado e `500` para falha inesperada. O backend não deve expor detalhes internos no campo `message`.
+Erros HTTP comuns: `400` para entrada inválida, `401` para token ausente ou inválido, `404` para sessão inexistente, `409` para conflito de estado e `500` para falha inesperada.
+
+Falhas inesperadas usam o código `INTERNAL_ERROR`. Esse código único permite que o frontend mostre uma mensagem estável quando banco ou servidor estiverem indisponíveis, sem receber detalhes internos que poderiam expor a infraestrutura.
+
+```json
+{
+  "ok": false,
+  "data": null,
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Não foi possível concluir a operação. Tente novamente."
+  }
+}
+```
 
 ## Autorização simples
 
