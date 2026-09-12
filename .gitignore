@@ -1,0 +1,31 @@
+# Segredos e ambientes
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editores e sistema
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Cache e temporários
+.cache/
+*.log
+*.tmp
+*.temp
+work/
+outputs/
