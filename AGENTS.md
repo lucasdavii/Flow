@@ -31,7 +31,7 @@ pytest
 ## Segurança e qualidade
 
 - Nunca coloque segredos, tokens ou chaves reais no Git ou no frontend.
-- O frontend consome somente `/api/**`; a chave de serviço do Supabase fica no backend.
+- O frontend consome somente `/api/**`; a chave secreta do Supabase fica no backend.
 - Não execute SQL destrutivo automaticamente.
 - Evite novos frameworks e arquitetura desnecessária.
 - Faça alterações pequenas, compreensíveis e cobertas por testes proporcionais ao risco.

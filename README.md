@@ -35,7 +35,7 @@ Se Ubuntu/Debian informar que `ensurepip` não está disponível ao criar o ambi
 sudo apt install python3-venv
 ```
 
-Preencha o `.env` local com as credenciais do projeto Supabase. Nunca envie esse arquivo ao Git. A chave `SUPABASE_SERVICE_ROLE_KEY` é exclusiva do backend e jamais deve aparecer em `frontend/`.
+Preencha o `.env` local com as credenciais do projeto Supabase. Nunca envie esse arquivo ao Git. A chave `SUPABASE_SECRET_KEY` é exclusiva do backend e jamais deve aparecer em `frontend/`.
 
 ## Executar
 

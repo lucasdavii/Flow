@@ -10,5 +10,5 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
     DEBUG = os.getenv("FLASK_ENV", "").lower() == "development"

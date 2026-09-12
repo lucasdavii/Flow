@@ -9,7 +9,7 @@ Navegador (HTML/CSS/JS)
         | fetch + polling
         v
 Flask (rotas e serviços)
-        | chave de serviço somente no servidor
+        | chave secreta somente no servidor
         v
 Supabase / PostgreSQL
 ```
