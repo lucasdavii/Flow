@@ -107,6 +107,42 @@ def environment(monkeypatch):
         state["requests"].append(request)
         if state["before_request"]:
             state["before_request"](request, state)
+        if endpoint == "submit_conclusion_atomic":
+            values = json.loads(request.content)
+            session = next((s for s in state["rows"]["sessions"]
+                            if s["code"] == values["p_session_code"]), None)
+            participant = next((p for p in state["rows"]["participants"]
+                                if session and p["session_id"] == session["id"]
+                                and p["participant_token_hash"] ==
+                                values["p_participant_token_hash"]), None)
+            stage = next((s for s in state["rows"]["stages"]
+                          if session and s["id"] == session["current_stage_id"]), None)
+            error = None
+            if session is None:
+                error = "SESSION_NOT_FOUND"
+            elif participant is None:
+                error = "INVALID_PARTICIPANT_TOKEN"
+            elif session["status"] != "active":
+                error = "SESSION_NOT_ACTIVE"
+            elif stage is None or stage["type"] != "conclusion":
+                error = "SUBMISSION_NOT_ALLOWED_IN_CURRENT_STAGE"
+            if state["fail_at"] == ("POST", endpoint):
+                error = "internal"
+            if error:
+                return httpx.Response(400, json={"code": "P0001", "message": error, "hint": None, "details": None})
+            submission = next((s for s in state["rows"]["submissions"]
+                               if s["session_id"] == session["id"]
+                               and s["group_number"] == participant["group_number"]), None)
+            now = datetime.now(timezone.utc).isoformat()
+            if submission is None:
+                submission = {
+                    "id": str(uuid4()), "session_id": session["id"],
+                    "group_number": participant["group_number"], "created_at": now,
+                }
+                state["rows"]["submissions"].append(submission)
+            submission.update(content=values["p_content"],
+                              submitted_by=participant["id"], updated_at=now)
+            return httpx.Response(200, json=[deepcopy(submission)])
         if endpoint == "complete_role_atomic":
             values = json.loads(request.content)
             session = next((s for s in state["rows"]["sessions"]
@@ -127,7 +163,7 @@ def environment(monkeypatch):
             if state["fail_at"] == ("POST", endpoint):
                 error = "internal"
             if error:
-                return httpx.Response(400, json={"code": "P0001", "message": error})
+                return httpx.Response(400, json={"code": "P0001", "message": error, "hint": None, "details": None})
             completion = next((r for r in state["rows"]["role_completions"]
                                if r["participant_id"] == participant["id"]
                                and r["stage_id"] == values["p_stage_id"]), None)

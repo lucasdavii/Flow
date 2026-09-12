@@ -6,8 +6,6 @@ As expectativas descrevem a consistência exigida das operações transacionais.
 
 from collections import Counter
 
-import pytest
-
 from tests.session_database import (
     PARTICIPANT_TOKEN, STAGE_ID, TEACHER_TOKEN, environment,
 )
@@ -92,10 +90,6 @@ def test_completion_rejects_insert_after_concurrent_advance(environment):
     assert state["rows"]["role_completions"] == []
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A validação do estado e a submissão precisam compartilhar transação.",
-)
 def test_submission_rejects_insert_after_concurrent_finish(environment):
     client, state = environment
     state["rows"]["sessions"][0].update(
@@ -107,7 +101,7 @@ def test_submission_rejects_insert_after_concurrent_finish(environment):
     state["rows"]["stages"][0]["type"] = "conclusion"
 
     def finish_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/submissions"):
+        if request.method == "POST" and request.url.path.endswith("/submit_conclusion_atomic"):
             state["before_request"] = None
             response = client.post(
                 "/api/sessions/K7P2X/next",

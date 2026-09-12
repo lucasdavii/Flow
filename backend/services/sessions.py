@@ -849,27 +849,20 @@ def submit_conclusion(
     if not isinstance(participant_token, str) or not participant_token.strip():
         raise ParticipantTokenRequiredError
 
+    try:
+        token_hash = _hash_token(participant_token.strip())
+    except UnicodeEncodeError:
+        raise InvalidParticipantTokenError from None
+
     client = _get_database(database, SubmissionError)
     try:
-        session, participant = _active_participant(
-            client, normalized_code, participant_token.strip()
-        )
-        if session["current_stage"]["type"] != "conclusion":
-            raise SubmissionNotAllowedError
-        response = (
-            client.table("submissions")
-            .upsert(
-                {
-                    "session_id": session["id"],
-                    "group_number": participant["group_number"],
-                    "submitted_by": participant["id"],
-                    "content": content,
-                    "updated_at": datetime.now(timezone.utc).isoformat(),
-                },
-                on_conflict="session_id,group_number",
-            )
-            .execute()
-        )
+        # Validação e gravação compartilham o bloqueio da sessão com next,
+        # impedindo aceitar uma conclusão depois do encerramento.
+        response = client.rpc("submit_conclusion_atomic", {
+            "p_session_code": normalized_code,
+            "p_participant_token_hash": token_hash,
+            "p_content": content,
+        }).execute()
         if not response.data:
             raise SubmissionError
         submission = response.data[0]
@@ -880,12 +873,19 @@ def submit_conclusion(
                 "created_at", "updated_at",
             )
         }}
-    except (
-        SessionNotFoundError, InvalidParticipantTokenError,
-        SessionNotActiveError, SubmissionNotAllowedError, SubmissionError,
-    ):
+    except SubmissionError:
         raise
     except Exception as error:
+        error_message = getattr(error, "message", None)
+        expected_errors = {
+            "SESSION_NOT_FOUND": SessionNotFoundError,
+            "INVALID_PARTICIPANT_TOKEN": InvalidParticipantTokenError,
+            "SESSION_NOT_ACTIVE": SessionNotActiveError,
+            "SUBMISSION_NOT_ALLOWED_IN_CURRENT_STAGE": SubmissionNotAllowedError,
+        }
+        error_type = expected_errors.get(error_message)
+        if error_type is not None:
+            raise error_type from error
         raise SubmissionError from error
 
 

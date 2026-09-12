@@ -3,7 +3,31 @@
 Base revisada: `61d110d`, branch `backend-dev`. Este documento registra
 correções e limitações verificadas; não altera `docs/api.md`.
 
-## Conclusão
+## Atualização: correções transacionais
+
+As quatro regressões foram tratadas com RPCs que bloqueiam a linha da sessão
+durante validação e escrita. Os contratos HTTP permanecem os mesmos.
+A revisão abaixo é o registro histórico anterior às correções.
+
+- `supabase/atomic_join.sql`: entrada, capacidade e distribuição dos grupos.
+- `supabase/atomic_complete_role.sql`: conclusão da função na etapa ativa.
+- `supabase/atomic_submission.sql`: envio/atualização antes do encerramento.
+
+As três funções foram aplicadas no projeto Flow e verificadas com
+`supabase/test_atomic_operations.sql`, executado como `service_role`.
+O teste verifica sucesso, conflitos, idempotência e atualização, e reverte
+todas as suas linhas ao final. As permissões de execução de `anon` e
+`authenticated` foram verificadas como negadas.
+
+Suíte Python: 146 testes aprovados, sem xfail. Os testes de concorrência
+do Flask simulam intercalações no transporte; não substituem teste de carga
+com conexões PostgreSQL simultâneas, que ainda não foi executado.
+
+Para outro ambiente, aplicar os três SQLs aditivos depois de `schema.sql`
+e antes de iniciar este backend. Não repetir o schema inicial num banco existente.
+Nenhuma dependência nova, contrato HTTP ou arquivo de frontend foi alterado.
+
+## Conclusão da revisão anterior
 
 Os oito endpoints funcionam no percurso sequencial. A suíte revisada contém
 147 testes aprovados e quatro casos de concorrência marcados como `xfail`
