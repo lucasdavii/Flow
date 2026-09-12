@@ -1,0 +1,1 @@
+const go=(url)=>{window.location.href=url};document.querySelectorAll('[data-go]').forEach((el)=>el.addEventListener('click',()=>go(el.dataset.go)));document.querySelectorAll('form[data-next]').forEach((form)=>form.addEventListener('submit',(event)=>{event.preventDefault();go(form.dataset.next)}));
