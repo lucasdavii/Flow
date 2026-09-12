@@ -3,6 +3,7 @@
 from flask import Flask
 
 from backend.config import Config
+from backend.routes.sessions import sessions_blueprint
 
 
 def create_app(config: type[Config] = Config) -> Flask:
@@ -13,6 +14,7 @@ def create_app(config: type[Config] = Config) -> Flask:
         static_url_path="",
     )
     app.config.from_object(config)
+    app.register_blueprint(sessions_blueprint, url_prefix="/api")
 
     @app.get("/")
     def index():
