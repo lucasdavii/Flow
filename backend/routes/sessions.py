@@ -18,6 +18,8 @@ from backend.services.sessions import (
     SessionStateError,
     SessionStartError,
     StageNotCurrentError,
+    SubmissionError,
+    SubmissionNotAllowedError,
     TeacherTokenRequiredError,
     ValidationError,
     advance_session,
@@ -26,6 +28,7 @@ from backend.services.sessions import (
     get_session_state,
     join_session,
     start_session,
+    submit_conclusion,
 )
 
 sessions_blueprint = Blueprint("sessions", __name__)
@@ -224,5 +227,38 @@ def post_complete_role(code: str):
         )
     except RoleCompletionError:
         current_app.logger.exception("Não foi possível concluir a função.")
+        return internal_error_response()
+    return jsonify({"ok": True, "data": data, "error": None}), 200
+
+
+@sessions_blueprint.post("/sessions/<string:code>/submissions")
+def post_submission(code: str):
+    """Recebe a conclusão do grupo de um participante autorizado."""
+    try:
+        data = submit_conclusion(
+            code, request.headers.get("X-Participant-Token"),
+            request.get_json(silent=True),
+        )
+    except ValidationError as error:
+        return error_response("VALIDATION_ERROR", str(error), 400)
+    except ParticipantTokenRequiredError:
+        return error_response(
+            "PARTICIPANT_TOKEN_REQUIRED", "Informe o token do participante.", 401
+        )
+    except InvalidParticipantTokenError:
+        return error_response(
+            "INVALID_PARTICIPANT_TOKEN", "Token do participante inválido.", 401
+        )
+    except SessionNotFoundError:
+        return error_response("SESSION_NOT_FOUND", "Sessão não encontrada.", 404)
+    except SessionNotActiveError:
+        return error_response("SESSION_NOT_ACTIVE", "Esta sessão não está ativa.", 409)
+    except SubmissionNotAllowedError:
+        return error_response(
+            "SUBMISSION_NOT_ALLOWED_IN_CURRENT_STAGE",
+            "Envie a conclusão somente na etapa de conclusão.", 409,
+        )
+    except SubmissionError:
+        current_app.logger.exception("Não foi possível enviar a conclusão do grupo.")
         return internal_error_response()
     return jsonify({"ok": True, "data": data, "error": None}), 200

@@ -88,6 +88,14 @@ class RoleCompletionError(RuntimeError):
     """Indica uma falha inesperada ao registrar a conclusão da função."""
 
 
+class SubmissionNotAllowedError(RuntimeError):
+    """Indica um envio fora da etapa de conclusão."""
+
+
+class SubmissionError(RuntimeError):
+    """Indica uma falha inesperada ao gravar a conclusão do grupo."""
+
+
 def _required_text(value: Any, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"O campo {field_name} é obrigatório.")
@@ -791,3 +799,54 @@ def complete_role(
         raise
     except Exception as error:
         raise RoleCompletionError from error
+
+
+def submit_conclusion(
+    code: Any, participant_token: Any, payload: Any, database: Any = None
+) -> dict[str, Any]:
+    """Envia ou atualiza a conclusão do grupo identificado pelo token."""
+    normalized_code = _normalize_session_code(code)
+    if not isinstance(payload, dict):
+        raise ValidationError("Envie um objeto JSON válido.")
+    content = _required_text(payload.get("content"), "content")
+    if not isinstance(participant_token, str) or not participant_token.strip():
+        raise ParticipantTokenRequiredError
+
+    client = _get_database(database, SubmissionError)
+    try:
+        session, participant = _active_participant(
+            client, normalized_code, participant_token.strip()
+        )
+        if session["current_stage"]["type"] != "conclusion":
+            raise SubmissionNotAllowedError
+        response = (
+            client.table("submissions")
+            .upsert(
+                {
+                    "session_id": session["id"],
+                    "group_number": participant["group_number"],
+                    "submitted_by": participant["id"],
+                    "content": content,
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                },
+                on_conflict="session_id,group_number",
+            )
+            .execute()
+        )
+        if not response.data:
+            raise SubmissionError
+        submission = response.data[0]
+        return {"submission": {
+            field: submission[field]
+            for field in (
+                "id", "group_number", "content", "submitted_by",
+                "created_at", "updated_at",
+            )
+        }}
+    except (
+        SessionNotFoundError, InvalidParticipantTokenError,
+        SessionNotActiveError, SubmissionNotAllowedError, SubmissionError,
+    ):
+        raise
+    except Exception as error:
+        raise SubmissionError from error
