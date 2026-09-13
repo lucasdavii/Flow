@@ -1,6 +1,60 @@
 # HACKTUDO 2026 — uso orientado de smartphones em aula
 
-Base técnica de uma aplicação que ajuda professores a organizar quando, por quem e para qual finalidade smartphones são usados durante uma atividade. Esta etapa prepara a colaboração; as funcionalidades do produto ainda serão implementadas gradualmente.
+O FlowRoom ajuda professores a decidir quando, por quem e para qual finalidade smartphones são usados durante uma atividade, alternando pesquisa digital e colaboração presencial.
+
+> **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase.
+
+[**Acessar o FlowRoom publicado**](https://flowroom-7yml.onrender.com)
+
+## O problema
+
+Na sala de aula, o smartphone costuma ocupar dois extremos: distração constante ou proibição total. As duas opções desperdiçam a possibilidade de usar a tecnologia com intenção pedagógica e sem substituir a conversa presencial.
+
+## A solução
+
+O professor cria uma atividade, compartilha um código e distribui funções complementares entre os alunos. A tecnologia entra apenas quando uma função precisa dela e sai de cena quando o grupo precisa discutir.
+
+O fluxo acontece em três momentos:
+
+1. **Investigar:** pesquisadores e verificadores usam o celular para buscar e avaliar evidências.
+2. **Confrontar:** questionadores e relatores ajudam o grupo a comparar ideias sem depender da tela.
+3. **Concluir:** o grupo registra uma única síntese construída coletivamente.
+
+## Diferencial
+
+O objetivo não é entregar um celular para cada aluno nem apenas digitalizar uma lista de exercícios. Cada participante recebe uma responsabilidade diferente, e a resposta final depende da combinação dessas contribuições.
+
+- Funções complementares: pesquisador, verificador, questionador e relator.
+- Alternância explícita entre etapas digitais e presenciais.
+- Sala acessada por código, sem cadastro obrigatório do aluno.
+- Acompanhamento do professor e síntese final por grupo.
+- Aplicação real integrada e publicada, não apenas telas estáticas.
+
+## Experimente o fluxo
+
+1. Abra o link publicado e escolha **Professor**.
+2. Digite o tema, escolha grupos de quatro pessoas e crie a sala.
+3. Copie o código exibido.
+4. Em outras abas ou dispositivos, escolha **Aluno** e entre com quatro nomes diferentes.
+5. Inicie a atividade, acompanhe as funções distribuídas e avance pelas três etapas.
+6. Envie a síntese do grupo e confira o resultado na visão do professor.
+
+> No plano gratuito do Render, a primeira abertura após um período sem acessos pode levar alguns segundos.
+
+## Arquitetura e segurança
+
+O Flask serve o frontend e a API no mesmo deploy. O navegador acessa somente `/api/**`; apenas o backend conversa com o Supabase. Tokens de professor e participante ficam na sessão do navegador, enquanto o banco armazena somente seus hashes. A chave secreta do Supabase nunca é enviada ao frontend ou ao Git.
+
+```text
+Navegador (HTML/CSS/JS) -> Flask (/api) -> Supabase/PostgreSQL
+```
+
+## Roteiro de apresentação — 90 segundos
+
+1. Apresente o conflito: o celular compete pela atenção, mas também pode apoiar a aprendizagem.
+2. Crie uma sala e mostre quatro alunos recebendo responsabilidades diferentes.
+3. Mostre a passagem da pesquisa digital para a discussão sem tela.
+4. Registre a síntese e finalize com: **“No FlowRoom, a tecnologia entra com uma função e sai quando a conversa precisa acontecer.”**
 
 ## Stack
 
