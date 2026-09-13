@@ -2349,81 +2349,10 @@
             <p class="app-note">Ao entrar, você recebe uma função. A resposta completa nasce do grupo.</p>
           </form>
         </section>
-        <section class="app-page" data-page="student-group">
-          <div class="ambient-bg" aria-hidden="true">
-            <div class="ambient-grid"></div>
-            <span class="ambient-orb pink"></span>
-            <span class="ambient-orb yellow"></span>
-            <span class="ambient-orb teal"></span>
-            <span class="ambient-orb coral"></span>
-            <span class="ambient-glass one"></span>
-            <span class="ambient-glass two"></span>
-            <span class="ambient-ring" style="height: 220px; width: 220px; left: 38%; bottom: -60px"></span>
-            <svg class="ambient-ribbon" viewBox="0 0 260 50" width="220" style="left: -30px; bottom: 16%" fill="none" aria-hidden="true">
-              <path
-                d="M0 30 Q50 0 100 22 T260 14"
-                stroke="var(--lilac)"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-dasharray="3 10"
-                opacity="0.8"
-              />
-            </svg>
-            <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <div class="ambient-dust">
-              <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
-              <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
-              <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
-              <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
-              <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
-              <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
-            </div>
-          </div>
-          <button class="app-back" data-go="student-login">← Voltar</button>
-          <span class="app-kicker">Seu grupo</span>
-          <h1 class="app-heading">Crie um grupo ou entre em um já formado.</h1>
-          <p class="app-copy">Chame as pessoas da sua equipe — ou use o código que elas compartilharam com você.</p>
-          <div class="app-grid" style="margin-top: 30px">
-            <div class="app-card">
-              <span class="app-kicker">Criar grupo</span>
-              <div class="field" style="margin-top: 14px">
-                <label for="groupNameInput">Nome do grupo</label>
-                <input id="groupNameInput" placeholder="Ex.: Time da Ana" />
-              </div>
-              <button class="app-btn" id="createGroupBtn" style="margin-top: 6px">Criar grupo →</button>
-              <p class="app-note">Você vira o primeiro integrante. Compartilhe o código com sua equipe.</p>
-            </div>
-            <div class="app-card">
-              <span class="app-kicker">Já tenho um grupo</span>
-              <div class="field" style="margin-top: 14px">
-                <label for="groupCodeInput">Código do grupo</label>
-                <input id="groupCodeInput" placeholder="Ex.: GR-42" maxlength="6" />
-              </div>
-              <button class="app-btn alt" id="joinGroupBtn" style="margin-top: 6px">Entrar no grupo →</button>
-            </div>
-          </div>
-        </section>
         <section class="app-page" data-page="student-wait">
           <span class="flow-status">Você entrou</span>
-          <h1 class="app-heading">A sala está se formando.</h1>
-          <p class="app-copy">O professor inicia a atividade quando todos estiverem prontos.</p>
+          <h1 class="app-heading">Aguardando o professor iniciar a atividade...</h1>
+          <p class="app-copy">O código e o nome bastaram — o grupo e a função já foram atribuídos a você.</p>
           <div class="room-layout">
             <div class="app-card">
               <span class="app-kicker">Seu grupo</span>
@@ -2431,6 +2360,9 @@
                 Grupo 2
               </h2>
               <p class="app-note" id="studentGroupCode" hidden>Código do grupo: <strong></strong></p>
+              <p class="app-note" style="font-size: 1rem; color: var(--deep); font-weight: 700; margin-top: 4px">
+                Sua função: Pesquisador
+              </p>
               <div class="member-list">
                 <div class="member"><b>Você</b><small>conectado</small></div>
                 <div class="member"><b>Ana</b><small>conectada</small></div>
@@ -2652,84 +2584,8 @@
               <span class="step-dot current">01 Digital · 8 min</span><span class="step-dot">02 Presencial · 5 min</span
               ><span class="step-dot">03 Digital · 7 min</span>
             </div>
-            <button class="app-btn" data-go="teacher-mode">Criar sessão →</button
+            <button class="app-btn" data-go="teacher-config">Criar sessão →</button
             ><button class="app-btn alt" data-go="teacher-create" style="margin-left: 8px">Criar atividade</button>
-          </div>
-        </section>
-        <section class="app-page" data-page="teacher-mode">
-          <div class="ambient-bg" aria-hidden="true">
-            <div class="ambient-grid"></div>
-            <span class="ambient-orb pink"></span>
-            <span class="ambient-orb yellow"></span>
-            <span class="ambient-orb teal"></span>
-            <span class="ambient-orb coral"></span>
-            <span class="ambient-glass one"></span>
-            <span class="ambient-glass two"></span>
-            <span class="ambient-ring" style="height: 220px; width: 220px; left: 38%; bottom: -60px"></span>
-            <svg class="ambient-ribbon" viewBox="0 0 260 50" width="220" style="left: -30px; bottom: 16%" fill="none" aria-hidden="true">
-              <path
-                d="M0 30 Q50 0 100 22 T260 14"
-                stroke="var(--lilac)"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-dasharray="3 10"
-                opacity="0.8"
-              />
-            </svg>
-            <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
-                fill="currentColor"
-              />
-            </svg>
-            <div class="ambient-dust">
-              <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
-              <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
-              <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
-              <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
-              <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
-              <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
-            </div>
-          </div>
-          <button class="app-back" data-go="teacher-activity">← Voltar à atividade</button>
-          <span class="app-kicker">Antes de criar a sala</span>
-          <h1 class="app-heading">Como sua turma vai trabalhar?</h1>
-          <p class="app-copy">
-            Isso muda como o FlowRoom organiza as funções e o que você vê no painel da sala.
-          </p>
-          <div class="app-grid" style="margin-top: 30px">
-            <button class="app-choice" data-mode-choice="group">
-              <span class="app-icon"
-                ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="8.5" cy="8" r="3" stroke="currentColor" stroke-width="1.7" />
-                  <path d="M3 20c0-3.3 2.5-6 5.5-6S14 16.7 14 20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-                  <circle cx="16.5" cy="7" r="2.4" stroke="currentColor" stroke-width="1.6" opacity="0.75" />
-                  <path d="M14.5 20c-.15-2.7 1.6-5.2 4-5.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.75" />
-                </svg></span
-              ><strong>Em grupo</strong>
-              <p>Alunos se juntam em equipes e dividem funções complementares.</p>
-            </button>
-            <button class="app-choice" data-mode-choice="individual">
-              <span class="app-icon"
-                ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="12" cy="7.5" r="3.6" stroke="currentColor" stroke-width="1.7" />
-                  <path d="M4.5 20c0-4.1 3.4-7 7.5-7s7.5 2.9 7.5 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-                </svg></span
-              ><strong>Individual</strong>
-              <p>Cada aluno recebe sua própria função e acompanha o próprio ritmo.</p>
-            </button>
           </div>
         </section>
         <section class="app-page" data-page="teacher-config">
@@ -2779,7 +2635,7 @@
               <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
             </div>
           </div>
-          <button class="app-back" data-go="teacher-mode">← Voltar</button
+          <button class="app-back" data-go="teacher-activity">← Voltar</button
           ><span class="app-kicker">Configuração rápida</span>
           <h1 class="app-heading">Prepare o ritmo da sala.</h1>
           <form class="app-form" data-form="teacher">
@@ -3199,7 +3055,7 @@
         form.addEventListener("submit", (event) => {
           event.preventDefault();
           const destinations = {
-            student: "student-group",
+            student: "student-wait",
             "teacher-login": "teacher-activity",
             "teacher-register": "teacher-create",
             activity: "teacher-config",
@@ -3208,28 +3064,6 @@
           showPage(destinations[form.dataset.form] || "choose");
         }),
       );
-      document.querySelectorAll("[data-mode-choice]").forEach((button) =>
-        button.addEventListener("click", () => {
-          button.classList.add("is-picked");
-          flowroomMode = button.dataset.modeChoice;
-          setTimeout(() => showPage("teacher-config"), 180);
-        }),
-      );
-      document.querySelector("#createGroupBtn").addEventListener("click", (event) => {
-        event.preventDefault();
-        const name = document.querySelector("#groupNameInput").value.trim() || "Novo grupo";
-        const code = "GR-" + Math.floor(10 + Math.random() * 90);
-        document.querySelector("#studentGroupHeading").textContent = name;
-        const codeNote = document.querySelector("#studentGroupCode");
-        codeNote.hidden = false;
-        codeNote.querySelector("strong").textContent = code;
-        showPage("student-wait");
-      });
-      document.querySelector("#joinGroupBtn").addEventListener("click", (event) => {
-        event.preventDefault();
-        document.querySelector("#studentGroupCode").hidden = true;
-        showPage("student-wait");
-      });
     </script>
     <script src="assets/js/flowroom.js"></script>
   </body>
