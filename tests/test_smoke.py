@@ -21,6 +21,7 @@ def test_frontend_serves_mvp_api_modules():
     index = client.get("/")
     assert b'assets/js/api.js' in index.data
     assert b'assets/js/mvp.js' in index.data
+    assert b"data-copy-room-code" in index.data
 
     assert client.get("/assets/js/api.js").status_code == 200
     mvp = client.get("/assets/js/mvp.js")
@@ -30,3 +31,4 @@ def test_frontend_serves_mvp_api_modules():
     assert b"renderGroupMembers" in mvp.data
     assert b"renderTeacherActivity" in mvp.data
     assert b"stopStudentUpdates" in mvp.data
+    assert b"navigator.clipboard.writeText" in mvp.data

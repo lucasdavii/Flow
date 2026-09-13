@@ -389,6 +389,18 @@
     else if (form.dataset.form === "teacher-login" || form.dataset.form === "teacher-register") show("teacher-create");
   }, true);
 
+  document.querySelector("[data-copy-room-code]")?.addEventListener("click", async (event) => {
+    if (!state.code) return;
+    try {
+      // O clipboard evita erros de digitação ao compartilhar o código durante a aula ou demonstração.
+      await navigator.clipboard.writeText(state.code);
+      event.currentTarget.textContent = "Código copiado ✓";
+    } catch {
+      // Alguns navegadores bloqueiam o clipboard; o código continua visível para cópia manual.
+      notice("teacher-lobby", "Não foi possível copiar automaticamente. Copie o código exibido acima.", true);
+    }
+  });
+
   document.addEventListener("click", (event) => {
     const element = event.target.closest("[data-go], [data-open-app]");
     if (!element) return;
