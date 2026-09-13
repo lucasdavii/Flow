@@ -21,7 +21,7 @@
   ];
   const state = {
     code: null, teacherToken: null, participantToken: null, student: null,
-    stopStudentPoll: null, teacherTimer: null, teacherLoading: false,
+    stopStudentPoll: null, teacherTimer: null, teacherLoading: false, currentStage: null,
   };
   const app = document.querySelector("#flowApp");
   const page = (name) => document.querySelector(`.app-page[data-page="${name}"]`);
@@ -93,6 +93,84 @@
     });
   }
 
+  function renderTeacherGroups(container, groups) {
+    container.textContent = "";
+    groups.forEach((group) => {
+      const card = document.createElement("div");
+      card.className = "group-box";
+      const heading = document.createElement("strong");
+      heading.textContent = `Grupo ${group.number} `;
+      const count = document.createElement("span");
+      count.textContent = `${group.members.length} participante(s)`;
+      heading.append(count);
+      const members = document.createElement("small");
+      members.textContent = group.members.map((member) =>
+        `${member.name} · ${member.role_name}`).join(" | ");
+      card.append(heading, members);
+      container.append(card);
+    });
+  }
+
+  function renderTeacherActivity(results) {
+    if (!state.currentStage || state.currentStage.type !== "digital") return;
+    const dashboard = page("teacher-dashboard");
+    const groups = results.groups || [];
+    const participants = groups.reduce((sum, group) => sum + group.members.length, 0);
+    const completed = groups.reduce((sum, group) => sum + group.members.reduce(
+      (count, member) => count + member.completed_stage_count, 0), 0);
+    dashboard.querySelector(".app-kicker").textContent =
+      `${results.session.activity_title} · Sala ${results.session.code}`;
+    dashboard.querySelector(".app-heading").textContent = state.currentStage.title;
+    dashboard.querySelector(".app-copy").textContent = state.currentStage.instructions;
+    dashboard.querySelector(".progress-track").hidden = true;
+    dashboard.querySelector("strong[data-mode='group']").textContent =
+      `${participants} participante(s) em ${groups.length} grupo(s)`;
+    dashboard.querySelector(".group-grid").hidden = false;
+    renderTeacherGroups(dashboard.querySelector(".group-grid"), groups);
+    dashboard.querySelector(".flow-status[data-mode='group']").textContent =
+      `${completed} parte(s) digital(is) concluída(s).`;
+  }
+
+  function renderTeacherConclusion(results) {
+    const conclusion = page("teacher-conclusion");
+    const list = conclusion.querySelector(".member-list");
+    list.textContent = "";
+    (results.groups || []).forEach((group) => {
+      const item = document.createElement("div");
+      item.className = "member";
+      const name = document.createElement("b");
+      name.textContent = `Grupo ${group.number}`;
+      const status = document.createElement(group.submission ? "span" : "small");
+      status.textContent = group.submission ? "Enviado ✓" : "Aguardando conclusão";
+      item.append(name, status);
+      list.append(item);
+    });
+  }
+
+  function renderTeacherStage(session) {
+    state.currentStage = session.current_stage;
+    const stage = state.currentStage;
+    if (!stage) return;
+    if (stage.type === "digital") {
+      const dashboard = page("teacher-dashboard");
+      const tags = dashboard.querySelectorAll(".role-tag");
+      tags[0].textContent = `ETAPA ${stage.position}`;
+      tags[1].textContent = stage.type.toUpperCase();
+      return;
+    }
+    if (stage.type === "presential") {
+      const presential = page("teacher-presential");
+      presential.querySelector(".app-kicker").textContent = `Etapa ${stage.position}`;
+      presential.querySelector(".role-tag").textContent = stage.type.toUpperCase();
+      presential.querySelector("h2").textContent = stage.title;
+      presential.querySelector(".app-copy").textContent = stage.instructions;
+      return;
+    }
+    const conclusion = page("teacher-conclusion");
+    conclusion.querySelector(".app-kicker").textContent = `Etapa ${stage.position}`;
+    conclusion.querySelector("h1").textContent = stage.title;
+  }
+
   function renderResults(results) {
     const result = page("teacher-results");
     const groups = results.groups || [];
@@ -122,7 +200,10 @@
     state.teacherLoading = true;
     const result = await FlowAPI.getResults(state.code, teacherToken());
     state.teacherLoading = false;
-    if (result.ok) renderLobby(result.data);
+    if (!result.ok) return;
+    renderLobby(result.data);
+    if (state.currentStage?.type === "digital") renderTeacherActivity(result.data);
+    if (state.currentStage?.type === "conclusion") renderTeacherConclusion(result.data);
   }
 
   function startTeacherRefresh() {
@@ -232,6 +313,9 @@
   async function startSession() {
     const result = await FlowAPI.startSession(state.code, teacherToken());
     if (!result.ok) return notice("teacher-lobby", FlowAPI.describeError(result), true);
+    // O endpoint de resultados não inclui a etapa atual; ela vem desta resposta.
+    renderTeacherStage(result.data.session);
+    refreshTeacher();
     show("teacher-dashboard");
   }
 
@@ -244,6 +328,8 @@
       if (results.ok) renderResults(results.data);
       return show("teacher-results");
     }
+    renderTeacherStage(session);
+    refreshTeacher();
     show(session.current_stage.type === "presential" ?
       "teacher-presential" : "teacher-conclusion");
   }
