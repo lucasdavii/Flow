@@ -1,8 +1,8 @@
-# HACKTUDO 2026 — uso orientado de smartphones em aula
+# FlowRoom — tecnologia com propósito em sala de aula
 
 O FlowRoom ajuda professores a decidir quando, por quem e para qual finalidade smartphones são usados durante uma atividade, alternando pesquisa digital e colaboração presencial.
 
-> **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase.
+> **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase. Projeto desenvolvido durante o HACKTUDO 2026 e mantido como portfólio.
 
 [**Acessar o FlowRoom publicado**](https://flowroom-7vml.onrender.com)
 
@@ -49,12 +49,16 @@ O Flask serve o frontend e a API no mesmo deploy. O navegador acessa somente `/a
 Navegador (HTML/CSS/JS) -> Flask (/api) -> Supabase/PostgreSQL
 ```
 
-## Roteiro de apresentação — 90 segundos
+## Decisões de produto
 
-1. Apresente o conflito: o celular compete pela atenção, mas também pode apoiar a aprendizagem.
-2. Crie uma sala e mostre quatro alunos recebendo responsabilidades diferentes.
-3. Mostre a passagem da pesquisa digital para a discussão sem tela.
-4. Registre a síntese e finalize com: **“No FlowRoom, a tecnologia entra com uma função e sai quando a conversa precisa acontecer.”**
+- **Entrada simples:** alunos acessam a atividade por código, sem criar conta.
+- **Tecnologia como etapa:** o fluxo sinaliza quando pesquisar no celular e quando voltar à discussão presencial.
+- **Participação distribuída:** funções complementares reduzem a concentração da atividade em uma única pessoa.
+- **Um deploy:** o Flask entrega a API e o frontend, simplificando a publicação e evitando configuração de CORS entre serviços.
+
+## Estado do projeto
+
+O MVP cobre o ciclo completo de uma atividade: criação da sala, entrada dos participantes, distribuição de funções, avanço das etapas, envio da síntese e visualização dos resultados. Como próximos passos, o projeto pode receber autenticação persistente de professores, histórico de turmas e métricas pedagógicas.
 
 ## Stack
 
@@ -105,6 +109,9 @@ Para executar os testes:
 pytest
 ```
 
-## Colaboração
+## Autores
 
-O backend e o frontend podem evoluir em paralelo, mas ambos devem obedecer a `docs/api.md`. Codex trabalha no backend e Claude Code no frontend. Alterações de contrato precisam de aprovação humana. Integre e teste um checkpoint pequeno de cada vez, conforme `docs/workflow.md`.
+- [Lucas Davi](https://github.com/lucasdavii) — backend, API, banco de dados, integração e deploy.
+- [Belles-hub](https://github.com/Belles-hub) — frontend, experiência de uso e identidade visual.
+
+Construído em colaboração para o HACKTUDO 2026 e continuado como projeto de portfólio.
