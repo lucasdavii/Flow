@@ -2,7 +2,9 @@
 
 O FlowRoom ajuda professores a decidir quando, por quem e para qual finalidade smartphones são usados durante uma atividade, alternando pesquisa digital e colaboração presencial.
 
-> **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase. Projeto desenvolvido durante o HACKTUDO 2026 e mantido como portfólio.
+> **Projeto desenvolvido para o HACKTUDO 2026.**
+>
+> **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase, mantido como projeto de portfólio.
 
 [**Acessar o FlowRoom publicado**](https://flowroom-7vml.onrender.com)
 
