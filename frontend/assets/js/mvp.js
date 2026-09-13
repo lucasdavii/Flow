@@ -245,7 +245,11 @@
     renderGroupMembers(done.querySelector(".member-list"), group, participant, true);
     done.querySelector(".screen-actions").hidden = true;
     if (session.status === "waiting") return show("student-wait");
-    if (session.status === "finished") return show("student-final");
+    if (session.status === "finished") {
+      // Uma sessão encerrada não muda mais; parar o polling evita reabrir esta tela após sair.
+      stopStudentUpdates();
+      return show("student-final");
+    }
     const stage = session.current_stage;
     if (!stage) return;
     if (stage.type === "conclusion") {
@@ -269,8 +273,14 @@
     }
   }
 
+  function stopStudentUpdates() {
+    if (!state.stopStudentPoll) return;
+    state.stopStudentPoll();
+    state.stopStudentPoll = null;
+  }
+
   function startStudentPoll() {
-    if (state.stopStudentPoll) state.stopStudentPoll();
+    stopStudentUpdates();
     state.stopStudentPoll = FlowAPI.pollState(
       state.code, participantToken(), (result) => {
         if (result.ok) renderStudent(result.data);
@@ -364,6 +374,7 @@
     const element = event.target.closest("[data-go], [data-open-app]");
     if (!element) return;
     const destination = element.dataset.go || element.dataset.openApp;
+    if (destination === "choose") stopStudentUpdates();
     const simulatedStudentSteps = new Set([
       "student-role", "student-presential", "student-conclusion",
     ]);
