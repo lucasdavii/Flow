@@ -12,3 +12,18 @@ def test_frontend_index_is_served_by_flask():
     # a textos do layout anterior.
     assert b"FLOW \xe2\x80\x94 Aprender no ritmo certo" in response.data
     assert b'id="flowApp"' in response.data
+
+
+def test_frontend_serves_mvp_api_modules():
+    """Evita publicar a tela principal sem os scripts que chamam o Flask."""
+    client = create_app().test_client()
+
+    index = client.get("/")
+    assert b'assets/js/api.js' in index.data
+    assert b'assets/js/mvp.js' in index.data
+
+    assert client.get("/assets/js/api.js").status_code == 200
+    mvp = client.get("/assets/js/mvp.js")
+    assert mvp.status_code == 200
+    assert b"FlowAPI.createSession" in mvp.data
+    assert b"FlowAPI.joinSession" in mvp.data
