@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cadastro | FlowRoom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/flowroom.css" />
+  </head>
+  <body>
+    <div class="ambient-bg" aria-hidden="true">
+      <span class="ambient-orb pink"></span>
+      <span class="ambient-orb yellow"></span>
+      <span class="ambient-orb teal"></span>
+      <span class="ambient-glass one"></span>
+      <span class="ambient-glass two"></span>
+      <span class="ambient-ring" style="height: 220px; width: 220px; right: -40px; top: 42%"></span>
+      <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <div class="ambient-dust">
+        <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
+        <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
+        <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
+        <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
+        <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
+        <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
+      </div>
+    </div>
+    <header class="site-header">
+      <a class="brand" href="../index.html"></a>
+      <nav class="top-links"><a href="login.html">Entrar</a><a href="aluno.html">Aluno</a></nav>
+    </header>
+    <main class="page">
+      <section class="hero">
+        <span class="eyebrow">Cadastro do professor</span>
+        <h1>Crie seu espaço de aula.</h1>
+        <p>Monte atividades com intenção e acompanhe quando a tecnologia entra e sai da conversa.</p>
+      </section>
+      <form class="form-card" data-next="professor.html">
+        <div class="field">
+          <label for="name">Seu nome</label><input id="name" placeholder="Como a turma chama você?" required />
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label><input id="email" type="email" placeholder="professor@escola.com" required />
+        </div>
+        <div class="field">
+          <label for="password">Crie uma senha</label
+          ><input id="password" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" required />
+        </div>
+        <div class="actions"><button class="btn">Criar cadastro →</button></div>
+      </form>
+    </main>
+    <footer class="footer">FlowRoom · seu espaço de aula começa aqui.</footer>
+    <script src="../assets/js/flowroom.js"></script>
+  </body>
+</html>

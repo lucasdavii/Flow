@@ -1,14 +1,3065 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HACKTUDO 2026</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FLOW — Aprender no ritmo certo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --deep: #113c3b;
+        --teal: #23958b;
+        --mint: #dff3e8;
+        --paper: #fffdf8;
+        --muted: #627573;
+        --coral: #ff7769;
+        --yellow: #f3c852;
+        --lilac: #b8a7ee;
+        --pink: #f6a4bd;
+        --line: #dfe9e2;
+        --shadow: 0 24px 50px #113c3b1f;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--paper);
+        color: var(--deep);
+        font-family: "DM Sans", sans-serif;
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+      h1,
+      h2,
+      h3,
+      .brand,
+      .eyebrow {
+        font-family: "Space Grotesk", sans-serif;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button {
+        font: inherit;
+      }
+      .wrap {
+        margin: auto;
+        width: min(1160px, calc(100% - 48px));
+      }
+      .eyebrow {
+        color: var(--teal);
+        font-size: 0.77rem;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+      .btn {
+        align-items: center;
+        border: 0;
+        border-radius: 14px;
+        cursor: pointer;
+        display: inline-flex;
+        font-weight: 700;
+        gap: 10px;
+        justify-content: center;
+        padding: 15px 21px;
+        transition: 0.2s;
+      }
+      .btn:hover {
+        box-shadow: 0 10px 22px #113c3b29;
+        transform: translateY(-3px);
+      }
+      .primary {
+        background: var(--deep);
+        color: #fff;
+      }
+      .quiet {
+        background: transparent;
+        border: 1px solid var(--line);
+      }
+      :focus-visible {
+        outline: 3px solid var(--yellow);
+        outline-offset: 3px;
+      }
+      header {
+        background: #fffdf8e8;
+        border-bottom: 1px solid #dfe9e2bf;
+        backdrop-filter: blur(14px);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      nav {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        min-height: 76px;
+      }
+      .brand {
+        align-items: center;
+        display: flex;
+        font-size: 1.25rem;
+        font-weight: 700;
+        gap: 9px;
+        letter-spacing: 0.08em;
+      }
+      .navlinks {
+        display: flex;
+        font-size: 0.91rem;
+        font-weight: 600;
+        gap: 30px;
+      }
+      .navlinks a {
+        color: var(--muted);
+      }
+      .navlinks a:hover {
+        color: var(--teal);
+      }
+      .menu {
+        background: none;
+        border: 0;
+        cursor: pointer;
+        display: none;
+      }
+      .menu span {
+        background: var(--deep);
+        display: block;
+        height: 2px;
+        margin: 5px;
+        width: 23px;
+      }
+      .hero {
+        overflow: hidden;
+        padding: 78px 0 40px;
+        position: relative;
+      }
+      .hero:before {
+        background: var(--mint);
+        border-radius: 50%;
+        content: "";
+        height: 560px;
+        opacity: 0.55;
+        position: absolute;
+        right: -240px;
+        top: -280px;
+        width: 560px;
+      }
+      .hero-grid {
+        align-items: center;
+        display: grid;
+        gap: 64px;
+        grid-template-columns: 1fr 0.92fr;
+        position: relative;
+      }
+      .hero h1 {
+        font-size: clamp(3rem, 6vw, 5.65rem);
+        letter-spacing: -0.07em;
+        line-height: 0.98;
+        margin: 14px 0 24px;
+        max-width: 8ch;
+      }
+      .hero h1 em {
+        color: var(--coral);
+        font-style: normal;
+      }
+      .lead {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 48ch;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 31px;
+      }
+      .hero-note {
+        align-items: center;
+        color: var(--teal);
+        cursor: pointer;
+        display: flex;
+        font-size: 0.84rem;
+        font-weight: 700;
+        gap: 8px;
+        margin-top: 26px;
+      }
+      .hero-note:hover {
+        color: var(--deep);
+      }
+      .flow {
+        min-height: 460px;
+        position: relative;
+      }
+      .orbit {
+        animation: spin 24s linear infinite;
+        border: 1.5px dashed #23958b73;
+        border-radius: 50%;
+        height: 390px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 390px;
+      }
+      .orbit:after {
+        background: var(--coral);
+        border: 6px solid var(--paper);
+        border-radius: 50%;
+        content: "";
+        height: 15px;
+        left: 41px;
+        position: absolute;
+        top: 40px;
+        width: 15px;
+      }
+      @keyframes spin {
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+      .core {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        justify-content: center;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+      }
+      .core-logo {
+        filter: drop-shadow(0 10px 20px #113c3b40);
+        height: 158px;
+        width: auto;
+      }
+      .core-name {
+        color: var(--deep);
+        font-family: "Space Grotesk";
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+      }
+      .chip {
+        align-items: center;
+        animation: float 4.5s ease-in-out infinite;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        display: flex;
+        font-size: 0.83rem;
+        font-weight: 700;
+        gap: 7px;
+        padding: 13px 16px;
+        position: absolute;
+        z-index: 3;
+      }
+      .chip svg {
+        flex: none;
+        height: 16px;
+        width: 16px;
+      }
+      .one {
+        background: var(--yellow);
+        left: 4%;
+        top: 12%;
+      }
+      .two {
+        animation-delay: -1.6s;
+        background: var(--lilac);
+        right: 2%;
+        top: 28%;
+      }
+      .three {
+        animation-delay: -2.4s;
+        background: var(--pink);
+        bottom: 9%;
+        left: 12%;
+      }
+      .four {
+        animation-delay: -3.2s;
+        background: var(--coral);
+        bottom: 22%;
+        right: 10%;
+      }
+      @keyframes float {
+        50% {
+          transform: translateY(-9px) rotate(2deg);
+        }
+      }
+      .caption {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        bottom: 1%;
+        box-shadow: 0 11px 25px #113c3b14;
+        color: var(--muted);
+        font-size: 0.77rem;
+        padding: 11px 14px;
+        position: absolute;
+        right: 21%;
+        z-index: 4;
+      }
+      .caption strong {
+        color: var(--deep);
+        display: block;
+      }
+      .intro {
+        align-items: end;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+      .intro h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: -0.06em;
+        line-height: 1;
+        max-width: 11ch;
+      }
+      .intro p {
+        color: var(--muted);
+        max-width: 35ch;
+      }
+      .step-grid {
+        display: grid;
+        gap: 14px;
+      }
+      .step:hover {
+        box-shadow: 0 16px 30px #113c3b24;
+        transform: translateY(-6px);
+      }
+      @keyframes iconWiggle {
+        0%,
+        100% {
+          transform: rotate(0);
+        }
+        30% {
+          transform: rotate(-8deg) scale(1.06);
+        }
+        70% {
+          transform: rotate(8deg) scale(1.06);
+        }
+      }
+      .steps {
+        padding: 56px 0 110px;
+      }
+      .step-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .step {
+        border: 2px solid transparent;
+        border-radius: 26px;
+        cursor: pointer;
+        overflow: hidden;
+        padding: 22px 24px 26px;
+        transition: 0.2s;
+      }
+      .step.active {
+        border-color: var(--deep);
+        box-shadow: 0 16px 30px #113c3b29;
+        transform: translateY(-6px);
+      }
+      .step:nth-child(1) {
+        background: var(--coral);
+      }
+      .step:nth-child(2) {
+        background: var(--lilac);
+      }
+      .step:nth-child(3) {
+        background: var(--yellow);
+      }
+      .step small {
+        font-family: "Space Grotesk";
+        font-weight: 700;
+        opacity: 0.7;
+      }
+      .step h3 {
+        font-size: 1.8rem;
+        letter-spacing: -0.05em;
+        margin-top: 14px;
+      }
+      .step p {
+        font-size: 0.94rem;
+        margin-top: 10px;
+      }
+      .step-art-frame {
+        align-items: center;
+        background: #ffffff3d;
+        border-radius: 18px;
+        display: flex;
+        height: 190px;
+        justify-content: center;
+        margin-bottom: 6px;
+        overflow: hidden;
+      }
+      .step-art {
+        cursor: pointer;
+        filter: drop-shadow(0 8px 14px #00000022);
+        max-height: 88%;
+        max-width: 88%;
+        object-fit: contain;
+        transform: rotate(-3deg);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .step:hover .step-art {
+        transform: rotate(2deg) scale(1.08);
+      }
+      .app {
+        background: var(--deep);
+        color: #fff;
+        overflow: hidden;
+        padding: 100px 0;
+      }
+      .app-grid {
+        align-items: center;
+        display: grid;
+        gap: 90px;
+        grid-template-columns: 0.9fr 1.1fr;
+      }
+      .app h2 {
+        font-size: clamp(2.2rem, 4vw, 3.6rem);
+        letter-spacing: -0.07em;
+        line-height: 1;
+        margin: 15px 0 22px;
+        max-width: 9ch;
+      }
+      .app p {
+        color: #b9d6cc;
+        max-width: 38ch;
+      }
+      .app .eyebrow {
+        color: var(--yellow);
+      }
+      .checks {
+        display: grid;
+        gap: 12px;
+        list-style: none;
+        margin-top: 28px;
+      }
+      .checks li {
+        align-items: center;
+        display: flex;
+        font-size: 0.92rem;
+        gap: 10px;
+      }
+      .checks li:before {
+        align-items: center;
+        background: var(--teal);
+        border-radius: 50%;
+        content: "✓";
+        display: flex;
+        height: 21px;
+        justify-content: center;
+        width: 21px;
+      }
+      .phone-wrap {
+        display: flex;
+        justify-content: center;
+        position: relative;
+      }
+      .phone {
+        background: #f5f6ef;
+        border: 8px solid #0b2b2b;
+        border-radius: 36px;
+        box-shadow: 0 27px 55px #0000003b;
+        color: var(--deep);
+        max-width: 280px;
+        padding: 12px;
+        transform: rotate(4deg);
+        width: 100%;
+      }
+      .phone-top {
+        display: flex;
+        font-size: 0.68rem;
+        font-weight: 700;
+        justify-content: space-between;
+        padding: 1px 4px 16px;
+      }
+      .notch {
+        background: #0b2b2b;
+        border-radius: 0 0 12px 12px;
+        height: 16px;
+        left: 50%;
+        position: absolute;
+        top: 0;
+        transform: translateX(-50%);
+        width: 80px;
+      }
+      .phone-body {
+        background: #fff;
+        border-radius: 22px;
+        min-height: 370px;
+        padding: 22px 17px;
+      }
+      .pill {
+        background: var(--mint);
+        border-radius: 100px;
+        color: var(--teal);
+        display: inline-flex;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 7px 11px;
+      }
+      .phone h3 {
+        font-size: 1.28rem;
+        margin: 20px 0 5px;
+      }
+      .phone-body p {
+        font-size: 0.8rem;
+      }
+      .bar-label {
+        display: flex;
+        font-size: 0.7rem;
+        font-weight: 700;
+        justify-content: space-between;
+        margin-top: 22px;
+      }
+      .bar {
+        background: #e6eee9;
+        border-radius: 10px;
+        height: 9px;
+        margin-top: 7px;
+        overflow: hidden;
+      }
+      .bar i {
+        animation: grow 1.5s ease-out both;
+        background: var(--coral);
+        display: block;
+        height: 100%;
+        width: 72%;
+      }
+      @keyframes grow {
+        from {
+          width: 0;
+        }
+      }
+      .task {
+        align-items: center;
+        background: #fff8dd;
+        border-radius: 14px;
+        display: flex;
+        font-size: 0.78rem;
+        gap: 6px;
+        margin-top: 25px;
+        padding: 13px;
+      }
+      .task svg {
+        flex: none;
+        height: 14px;
+        width: 14px;
+      }
+      .phone-btn {
+        background: var(--deep);
+        border: 0;
+        border-radius: 11px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-top: 28px;
+        padding: 12px;
+        width: 100%;
+      }
+      .phone-btn.done {
+        background: var(--teal);
+      }
+      .badge {
+        background: var(--coral);
+        border-radius: 17px;
+        font-weight: 700;
+        padding: 13px 16px;
+        position: absolute;
+        right: -4%;
+        top: 44%;
+        transform: rotate(-6deg);
+      }
+      .badge small {
+        display: block;
+        font-size: 0.66rem;
+        font-weight: 500;
+      }
+      .final {
+        background: var(--mint);
+        padding: 82px 0;
+        text-align: center;
+      }
+      .final h2 {
+        font-size: clamp(2.2rem, 4vw, 3.7rem);
+        letter-spacing: -0.07em;
+        line-height: 1;
+        margin: auto;
+        max-width: 14ch;
+      }
+      .final p {
+        color: #5c3f3e;
+        margin: 18px auto 27px;
+      }
+      .final .btn.primary {
+        background: var(--deep);
+        color: #fff;
+      }
+      .final .btn.quiet {
+        background: transparent;
+        border: 1.5px solid #113c3b55;
+        color: var(--deep);
+      }
+      .final .btn.quiet:hover {
+        background: #113c3b14;
+      }
+      footer {
+        background: var(--deep);
+        color: #b9d6cc;
+        padding: 42px 0 24px;
+      }
+      .foot-top,
+      .foot-bottom {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+      }
+      .foot-links {
+        display: flex;
+        font-size: 0.86rem;
+        gap: 24px;
+      }
+      .foot-bottom {
+        border-top: 1px solid #ffffff21;
+        font-size: 0.76rem;
+        margin-top: 38px;
+        padding-top: 20px;
+      }
+      @media (max-width: 860px) {
+        .hero-grid,
+        .app-grid {
+          grid-template-columns: 1fr;
+          gap: 35px;
+        }
+        .hero-copy {
+          text-align: center;
+        }
+        .hero-copy h1,
+        .hero-copy .lead {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .actions,
+        .hero-note {
+          justify-content: center;
+        }
+        .app {
+          text-align: center;
+        }
+        .app h2,
+        .app p {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .checks {
+          justify-content: center;
+        }
+        .phone-wrap {
+          margin-top: 12px;
+        }
+        .intro {
+          align-items: start;
+          flex-direction: column;
+          gap: 16px;
+        }
+      }
+      @media (max-width: 600px) {
+        .wrap {
+          width: min(100% - 36px, 520px);
+        }
+        .navlinks {
+          background: var(--paper);
+          border-bottom: 1px solid var(--line);
+          display: none;
+          flex-direction: column;
+          gap: 18px;
+          left: 0;
+          padding: 22px;
+          position: absolute;
+          right: 0;
+          top: 76px;
+        }
+        .navlinks.open {
+          display: flex;
+        }
+        .menu {
+          display: block;
+        }
+        .nav-cta {
+          display: none;
+        }
+        .hero {
+          padding: 56px 0;
+        }
+        .hero h1 {
+          font-size: clamp(2.9rem, 14vw, 4.3rem);
+        }
+        .flow {
+          min-height: 355px;
+        }
+        .orbit {
+          height: 275px;
+          width: 275px;
+        }
+        .core-logo {
+          height: 122px;
+        }
+        .core-name {
+          font-size: 1rem;
+        }
+        .chip {
+          font-size: 0.72rem;
+          padding: 10px 11px;
+        }
+        .caption {
+          bottom: 0;
+          right: 9%;
+        }
+        .step-grid {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          scrollbar-width: none;
+        }
+        .step-grid::-webkit-scrollbar {
+          display: none;
+        }
+        .step {
+          flex: 0 0 82%;
+          scroll-snap-align: start;
+        }
+        .steps {
+          padding: 78px 0;
+        }
+        .step-art-frame {
+          height: 150px;
+        }
+        .app {
+          padding: 73px 0;
+        }
+        .phone {
+          transform: rotate(2deg);
+        }
+        .badge {
+          right: 2%;
+        }
+        .foot-top,
+        .foot-bottom {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .foot-links {
+          flex-wrap: wrap;
+          gap: 14px 20px;
+        }
+      }
+      html[data-theme="dark"] {
+        background: #0f1513;
+        filter: invert(1) hue-rotate(180deg);
+      }
+      html[data-theme="dark"] img,
+      html[data-theme="dark"] video {
+        filter: invert(1) hue-rotate(180deg);
+      }
+      html[data-theme="dark"] .access-launcher {
+        filter: invert(1) hue-rotate(180deg);
+      }
+      html[data-theme="dark"] .ambient-orb,
+      html[data-theme="dark"] .ambient-glass,
+      html[data-theme="dark"] .ambient-ring,
+      html[data-theme="dark"] .ambient-sparkle,
+      html[data-theme="dark"] .ambient-ribbon,
+      html[data-theme="dark"] .ambient-grid,
+      html[data-theme="dark"] .ambient-dust i {
+        filter: invert(1) hue-rotate(180deg) brightness(1.5) saturate(1.35);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *:before,
+        *:after {
+          animation-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+    <style>
+      .app-layer {
+        background: #f4f7f2;
+        display: none;
+        inset: 0;
+        min-height: 100vh;
+        overflow: auto;
+        position: fixed;
+        z-index: 30;
+      }
+      .app-layer.open {
+        display: block;
+      }
+      .app-bar {
+        align-items: center;
+        background: #fffdf8;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        padding: 18px max(22px, calc((100% - 1120px) / 2));
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      .app-brand {
+        align-items: center;
+        display: flex;
+        font-family: "Space Grotesk";
+        font-size: 1.1rem;
+        font-weight: 700;
+        gap: 8px;
+        letter-spacing: 0.06em;
+      }
+      .app-close {
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--deep);
+        cursor: pointer;
+        font-weight: 700;
+        padding: 9px 13px;
+      }
+      .app-wrap {
+        margin: auto;
+        max-width: 1060px;
+        padding: 52px 24px 80px;
+      }
+      .app-page {
+        display: none;
+        animation: pageIn 0.35s ease both;
+      }
+      .app-page.active {
+        display: block;
+      }
+      @keyframes pageIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .app-kicker-one{
+            margin: 10px 0 14px;
+
+      }
+      .app-kicker {
+        color: var(--teal);
+        font-family: "Space Grotesk";
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .app-heading {
+        font-family: "Space Grotesk";
+        font-size: clamp(2.3rem, 5vw, 4.7rem);
+        letter-spacing: -0.07em;
+        line-height: 0.98;
+        margin: 13px 0 18px;
+        max-width: 11ch;
+      }
+      .app-copy {
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 48ch;
+      }
+      .app-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 38px;
+      }
+      .app-grid.cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      @media (max-width: 860px) {
+        .app-grid.cols-4 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 560px) {
+        .app-grid.cols-4 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .role-tag.presencial {
+        background: var(--teal);
+        color: #fff;
+      }
+      .app-choice,
+      .app-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 24px;
+        text-align: left;
+      }
+      .app-choice {
+        border: 2px solid transparent;
+        cursor: pointer;
+        min-height: 190px;
+        transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1),
+          border-color 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+      .app-choice:hover {
+        border-color: var(--teal);
+        box-shadow: var(--shadow);
+        transform: translateY(-4px) scale(1.02);
+      }
+      .app-choice:active {
+        transform: translateY(-1px) scale(0.97);
+      }
+      .app-choice.is-picked {
+        border-color: var(--ink);
+        transform: scale(1.04);
+      }
+      .app-choice:nth-child(1) {
+        background: var(--mint);
+      }
+      .app-choice:nth-child(2) {
+        background: #fff1dc;
+      }
+      .app-choice:nth-child(3) {
+        background: #f5efff;
+      }
+      .app-choice strong {
+        display: block;
+        font-family: "Space Grotesk";
+        font-size: 1.35rem;
+        margin: 40px 0 6px;
+      }
+      .app-choice p,
+      .app-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .app-icon {
+        display: inline-flex;
+      }
+      .app-icon svg {
+        height: 30px;
+        width: 30px;
+      }
+      .app-choice:hover .app-icon svg {
+        animation: iconWiggle 0.6s ease;
+      }
+      .app-form {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        margin-top: 30px;
+        max-width: 510px;
+        padding: 28px;
+      }
+      .field {
+        display: grid;
+        gap: 7px;
+        margin-bottom: 17px;
+      }
+      .field label {
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+      .field input,
+      .field textarea,
+      .select-like {
+        background: #fbfcf8;
+        border: 1px solid #cfded4;
+        border-radius: 11px;
+        color: var(--deep);
+        font: inherit;
+        padding: 13px 14px;
+        width: 100%;
+      }
+      .field textarea {
+        min-height: 130px;
+        resize: vertical;
+      }
+      .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 25px;
+      }
+      .app-btn {
+        background: var(--deep);
+        border: 0;
+        border-radius: 11px;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 13px 18px;
+      }
+      .app-btn.alt {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--deep);
+      }
+      .flow-status {
+        align-items: center;
+        background: var(--mint);
+        border-radius: 14px;
+        color: var(--teal);
+        display: inline-flex;
+        font-size: 0.78rem;
+        font-weight: 700;
+        gap: 8px;
+        padding: 9px 12px;
+      }
+      .flow-status:before {
+        background: var(--teal);
+        border-radius: 50%;
+        content: "";
+        height: 8px;
+        width: 8px;
+      }
+      .step-strip {
+        display: flex;
+        gap: 8px;
+        margin: 30px 0;
+      }
+      .step-dot {
+        background: #dce8df;
+        border-radius: 50px;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 8px 12px;
+      }
+      .step-dot.current {
+        background: var(--deep);
+        color: #fff;
+      }
+      .room-code {
+        background: var(--deep);
+        border-radius: 26px;
+        color: #fff;
+        display: inline-block;
+        font-family: "Space Grotesk";
+        font-size: clamp(3rem, 9vw, 6.5rem);
+        letter-spacing: 0.14em;
+        line-height: 1;
+        padding: 28px 34px;
+      }
+      .room-layout {
+        align-items: start;
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 1.15fr 0.85fr;
+        margin-top: 35px;
+      }
+      .member-list {
+        display: grid;
+        gap: 9px;
+        margin-top: 18px;
+      }
+      .member {
+        align-items: center;
+        background: #f7faf5;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 14px;
+      }
+      .member b {
+        font-size: 0.9rem;
+      }
+      .member small {
+        color: var(--muted);
+      }
+      .progress-track {
+        background: #e5eee6;
+        border-radius: 20px;
+        height: 12px;
+        margin: 15px 0 25px;
+        overflow: hidden;
+      }
+      .progress-track i {
+        background: var(--teal);
+        border-radius: 20px;
+        display: block;
+        height: 100%;
+        width: 75%;
+      }
+      .group-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 18px;
+      }
+      .group-box {
+        background: #f8faf7;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .group-box strong {
+        display: flex;
+        justify-content: space-between;
+      }
+      .group-box small {
+        color: var(--muted);
+        display: block;
+        margin-top: 5px;
+      }
+      .mode-card {
+        border-radius: 26px;
+        margin-top: 32px;
+        padding: 42px 34px;
+      }
+      .mode-card.digital {
+        background: var(--mint);
+      }
+      .mode-card.presential {
+        background: var(--deep);
+        color: #fff;
+        max-width: 700px;
+      }
+      .mode-card.presential .app-copy {
+        color: #b9d6cc;
+      }
+      .mode-card h2 {
+        font-family: "Space Grotesk";
+        font-size: clamp(2.2rem, 5vw, 4.8rem);
+        letter-spacing: -0.07em;
+        line-height: 0.96;
+        margin: 18px 0;
+        max-width: 10ch;
+      }
+      .mode-card.presential h2 {
+        max-width: 11ch;
+      }
+      .role-tag {
+        background: var(--yellow);
+        border-radius: 100px;
+        display: inline-block;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 7px 11px;
+      }
+      .quote-mark {
+        color: var(--coral);
+        font-size: 4rem;
+        line-height: 0.7;
+      }
+      .result-stat {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, 1fr);
+        margin: 30px 0;
+      }
+      .result-stat div {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .result-stat b {
+        display: block;
+        font-family: "Space Grotesk";
+        font-size: 2rem;
+      }
+      .result-stat span {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .demo-progress {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        margin: 25px 0;
+      }
+      .demo-progress i {
+        background: var(--teal);
+        border-radius: 10px;
+        display: block;
+        height: 6px;
+        width: 24%;
+      }
+      .demo-progress i:nth-child(2) {
+        background: #c9d9ce;
+        width: 24%;
+      }
+      .demo-progress i:nth-child(3) {
+        background: #c9d9ce;
+        width: 24%;
+      }
+      .demo-progress i:nth-child(4) {
+        background: #c9d9ce;
+        width: 24%;
+      }
+      .app-note {
+        color: var(--muted);
+        font-size: 0.82rem;
+        margin-top: 15px;
+      }
+      .app-back {
+        background: none;
+        border: 0;
+        color: var(--teal);
+        cursor: pointer;
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 22px;
+        padding: 0;
+      }
+      .screen-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        margin-top: 28px;
+      }
+      .screen-actions .app-back {
+        margin-bottom: 0;
+      }
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .app-card,
+      .member,
+      .group-box,
+      .result-stat > div,
+      .app-choice,
+      .step-dot {
+        animation: cardIn 0.45s ease both;
+      }
+      .member:nth-child(2),
+      .group-box:nth-child(2),
+      .result-stat > div:nth-child(2),
+      .app-choice:nth-child(2),
+      .step-dot:nth-child(2) {
+        animation-delay: 0.07s;
+      }
+      .member:nth-child(3),
+      .group-box:nth-child(3),
+      .result-stat > div:nth-child(3),
+      .app-choice:nth-child(3),
+      .step-dot:nth-child(3) {
+        animation-delay: 0.14s;
+      }
+      .member:nth-child(4),
+      .group-box:nth-child(4) {
+        animation-delay: 0.21s;
+      }
+      .progress-track i,
+      .demo-progress i {
+        animation: grow 1.1s ease-out both;
+      }
+      .flow-status:before {
+        animation: statusDotPulse 1.8s ease-in-out infinite;
+      }
+      @keyframes statusDotPulse {
+        50% {
+          box-shadow: 0 0 0 5px #23958b22;
+        }
+      }
+      .mode-card.presential {
+        animation: presentialBreathe 5s ease-in-out infinite;
+        box-shadow: 0 20px 45px #0000001c;
+      }
+      @keyframes presentialBreathe {
+        50% {
+          box-shadow: 0 30px 60px #00000030;
+        }
+      }
+      .step-dot.current {
+        animation:
+          cardIn 0.45s ease both,
+          currentStepPulse 2.2s ease-in-out 0.45s infinite;
+      }
+      @keyframes currentStepPulse {
+        50% {
+          box-shadow: 0 0 0 6px #113c3b1c;
+        }
+      }
+      .role-tag {
+        animation: tagPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      @keyframes tagPop {
+        from {
+          opacity: 0;
+          transform: scale(0.6);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @keyframes checkPop {
+        0% {
+          transform: scale(0);
+        }
+        70% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .member span,
+      .group-box strong span {
+        display: inline-block;
+        animation: checkPop 0.35s ease both;
+      }
+      .pending {
+        animation: pendingBlink 1.6s ease-in-out infinite;
+      }
+      @keyframes pendingBlink {
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .room-code {
+        animation: cardIn 0.5s ease both;
+      }
+      .deco-sparkle {
+        animation: sparkleTwinkle 2.6s ease-in-out infinite;
+        color: var(--coral);
+        cursor: default;
+        display: block;
+        height: 26px;
+        width: 26px;
+      }
+      @keyframes sparkleTwinkle {
+        0%,
+        100% {
+          transform: scale(0.82) rotate(0);
+          opacity: 0.65;
+        }
+        50% {
+          transform: scale(1.15) rotate(18deg);
+          opacity: 1;
+        }
+      }
+      .deco-squiggle {
+        color: var(--lilac);
+        display: block;
+        height: 20px;
+        width: 70px;
+      }
+      .deco-squiggle path {
+        animation: squiggleDraw 3s ease-in-out infinite;
+      }
+      @keyframes squiggleDraw {
+        0%,
+        100% {
+          stroke-dashoffset: 0;
+        }
+        50% {
+          stroke-dashoffset: 14;
+        }
+      }
+      .deco-panel {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 22px;
+        padding: 14px 0;
+      }
+      .deco-dust {
+        height: 0;
+        overflow: visible;
+        position: relative;
+        width: 0;
+      }
+      .deco-dust i {
+        animation: dustFloat 5s ease-in-out infinite;
+        background: #fff;
+        border-radius: 50%;
+        opacity: 0.55;
+        position: absolute;
+      }
+      @keyframes dustFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.3;
+        }
+        50% {
+          transform: translateY(-14px);
+          opacity: 0.8;
+        }
+      }
+      .demo-head {
+        align-items: center;
+        display: flex;
+        gap: 24px;
+        justify-content: space-between;
+      }
+      .demo-art {
+        cursor: pointer;
+        filter: drop-shadow(0 16px 26px #00000022);
+        flex: none;
+        transform: rotate(-6deg);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 170px;
+      }
+      .demo-art:hover {
+        transform: rotate(2deg) scale(1.06);
+      }
+      .app-card.has-art {
+        overflow: hidden;
+        padding-right: 100px;
+        position: relative;
+      }
+      .card-art {
+        bottom: -8px;
+        cursor: pointer;
+        filter: drop-shadow(0 10px 16px #00000030);
+        position: absolute;
+        right: -10px;
+        transform: rotate(6deg);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 112px;
+        z-index: 2;
+      }
+      .app-choice:hover .card-art,
+      .app-card:hover .card-art {
+        transform: rotate(-2deg) scale(1.08);
+      }
+      @media (max-width: 700px) {
+        .demo-head {
+          flex-direction: column;
+        }
+        .app-card.has-art {
+          padding-right: 24px;
+        }
+        .card-art {
+          position: static;
+          transform: none;
+          margin-top: 17px;
+          width: 140px;
+        }
+      }
+      .mode-card.digital h2 {
+        animation: roleReveal 0.5s ease 0.15s both;
+      }
+      @keyframes roleReveal {
+        from {
+          opacity: 0;
+          transform: translateX(-14px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .result-stat b {
+        animation: statPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+      }
+      @keyframes statPop {
+        from {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @media (max-width: 700px) {
+        .app-wrap {
+          padding: 38px 18px 60px;
+        }
+        .app-grid,
+        .room-layout {
+          grid-template-columns: 1fr;
+        }
+        .result-stat {
+          grid-template-columns: 1fr 1fr;
+        }
+        .result-stat div:last-child {
+          grid-column: span 2;
+        }
+        .room-code {
+          font-size: 3.2rem;
+          padding: 22px 20px;
+        }
+        .mode-card {
+          padding: 30px 24px;
+        }
+        .app-bar {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+      }
+      @media (max-width: 420px) {
+        .wrap {
+          width: calc(100% - 28px);
+        }
+        .hero {
+          padding-top: 42px;
+        }
+        .hero h1 {
+          font-size: clamp(2.65rem, 14vw, 3.6rem);
+        }
+        .hero-note {
+          align-items: flex-start;
+          font-size: 0.76rem;
+          text-align: left;
+        }
+        .actions .btn {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+        .flow {
+          min-height: 320px;
+        }
+        .orbit {
+          height: 245px;
+          width: 245px;
+        }
+        .core-logo {
+          height: 98px;
+        }
+        .core-name {
+          font-size: 0.85rem;
+        }
+        .chip {
+          font-size: 0.65rem;
+          padding: 8px 9px;
+        }
+        .one {
+          left: 0;
+        }
+        .two {
+          right: 0;
+          top: 22%;
+        }
+        .three {
+          left: 3%;
+        }
+        .four {
+          bottom: 26%;
+          right: 4%;
+        }
+        .caption {
+          font-size: 0.67rem;
+          right: 0;
+        }
+        .app-bar {
+          min-height: 64px;
+        }
+        .app-brand {
+          font-size: 0.95rem;
+        }
+        .app-close {
+          font-size: 0.72rem;
+          padding: 8px 9px;
+        }
+        .app-wrap {
+          padding: 30px 14px 48px;
+        }
+        .app-heading {
+          font-size: clamp(2.15rem, 12vw, 3.25rem);
+          max-width: 100%;
+        }
+        .app-copy {
+          font-size: 0.92rem;
+        }
+        .app-grid {
+          margin-top: 25px;
+        }
+        .app-choice,
+        .app-card {
+          border-radius: 16px;
+          padding: 18px;
+        }
+        .app-choice {
+          min-height: 150px;
+        }
+        .app-choice strong {
+          font-size: 1.15rem;
+          margin-top: 24px;
+        }
+        .app-form {
+          border-radius: 17px;
+          padding: 19px;
+        }
+        .step-strip {
+          margin: 22px 0;
+          max-width: 100%;
+          overflow-x: auto;
+          padding-bottom: 5px;
+          scrollbar-width: none;
+        }
+        .step-strip::-webkit-scrollbar {
+          display: none;
+        }
+        .step-dot {
+          flex: 0 0 auto;
+          font-size: 0.68rem;
+          padding: 7px 9px;
+        }
+        .room-code {
+          font-size: 2.65rem;
+          letter-spacing: 0.1em;
+          max-width: 100%;
+          padding: 20px 14px;
+        }
+        .room-layout {
+          margin-top: 25px;
+        }
+        .mode-card {
+          border-radius: 20px;
+          padding: 25px 18px;
+        }
+        .mode-card h2 {
+          font-size: clamp(2.1rem, 12vw, 3.2rem);
+          max-width: 100%;
+        }
+        .result-stat {
+          gap: 8px;
+          grid-template-columns: 1fr 1fr;
+        }
+        .result-stat div {
+          padding: 13px;
+        }
+        .result-stat b {
+          font-size: 1.55rem;
+        }
+        .result-stat div:last-child {
+          grid-column: span 2;
+        }
+        .screen-actions .app-btn {
+          width: 100%;
+        }
+        .app-btn {
+          max-width: 100%;
+          white-space: normal;
+        }
+        .field input,
+        .field textarea,
+        .select-like {
+          font-size: 16px;
+        }
+      }
+      .app-tabs {
+        display: flex;
+        gap: 5px;
+        margin: 0 auto;
+        overflow-x: auto;
+        padding: 3px;
+        scrollbar-width: none;
+      }
+      .app-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .app-tab {
+        background: transparent;
+        border: 0;
+        border-radius: 9px;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 9px 12px;
+        white-space: nowrap;
+      }
+      .app-tab:hover,
+      .app-tab:focus-visible {
+        background: var(--mint);
+        color: var(--deep);
+      }
+      @media (max-width: 700px) {
+        .app-bar {
+          gap: 10px;
+        }
+        .app-tabs {
+          order: 3;
+          width: 100%;
+        }
+        .app-bar {
+          flex-wrap: wrap;
+        }
+        .app-bar .app-brand {
+          margin-right: auto;
+        }
+        .app-close {
+          order: 2;
+        }
+        .app-tabs {
+          order: 3;
+        }
+        .app-tabs .app-tab {
+          font-size: 0.72rem;
+          padding: 8px 10px;
+        }
+      }
+      .ambient-bg {
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: fixed;
+        z-index: -1;
+      }
+      .ambient-orb {
+        animation: ambientFloat 9s ease-in-out infinite, ambientHue 12s ease-in-out infinite;
+        border-radius: 50%;
+        cursor: pointer;
+        pointer-events: auto;
+        position: absolute;
+        transition: scale 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+      .ambient-orb:hover {
+        scale: 1.1;
+      }
+      .ambient-orb.pink {
+        animation: ambientPinkEnter 0.9s ease-out both, ambientFloat 9s ease-in-out 0.9s infinite,
+          ambientHue 12s ease-in-out 0.9s infinite;
+        background: radial-gradient(circle at 32% 26%, #fff, var(--pink) 45%, #e37fa0 100%);
+        box-shadow: 0 0 60px #f5a6be66;
+        height: 110px;
+        left: -8%;
+        top: -10%;
+        width: 110px;
+      }
+      @keyframes ambientPinkEnter {
+        from {
+          opacity: 0;
+          transform: translate(-26px, -20px);
+        }
+        to {
+          opacity: 1;
+          transform: translate(0, 0);
+        }
+      }
+      .ambient-orb.yellow {
+        animation-delay: -3s, -4s;
+        background: radial-gradient(circle at 32% 26%, #fff, var(--yellow) 45%, #d9a92e 100%);
+        box-shadow: 0 0 70px #f3c85266;
+        height: 190px;
+        right: 8%;
+        top: 20%;
+        width: 190px;
+      }
+      .ambient-orb.yellow:hover {
+        box-shadow: 0 0 100px #f3c852cc;
+      }
+      .ambient-orb.teal {
+        animation-delay: -6s, -8s;
+        background: radial-gradient(circle at 32% 26%, #fff, var(--teal) 45%, #166a63 100%);
+        box-shadow: 0 0 50px #23958b55;
+        bottom: -6%;
+        height: 120px;
+        left: -5%;
+        width: 120px;
+      }
+      .ambient-orb.coral {
+        animation-delay: -2s, -6s;
+        background: radial-gradient(circle at 32% 26%, #fff, var(--coral) 45%, #d95a4d 100%);
+        box-shadow: 0 0 55px #ff776955;
+        bottom: -8%;
+        height: 100px;
+        right: -6%;
+        width: 100px;
+      }
+      @keyframes ambientFloat {
+        50% {
+          transform: translateY(-22px) translateX(10px);
+        }
+      }
+      @keyframes ambientHue {
+        50% {
+          filter: hue-rotate(20deg);
+        }
+      }
+      .ambient-glass {
+        animation: ambientDrift 13s ease-in-out infinite;
+        backdrop-filter: blur(8px);
+        background: linear-gradient(135deg, #ffffff66, #ffffff14);
+        border: 1px solid #ffffff77;
+        border-radius: 32px;
+        position: absolute;
+      }
+      .ambient-glass.one {
+        height: 110px;
+        right: 16%;
+        top: 6%;
+        transform: rotate(18deg);
+        width: 170px;
+      }
+      .ambient-glass.two {
+        animation-delay: -5s;
+        bottom: 8%;
+        height: 90px;
+        right: 12%;
+        transform: rotate(-14deg);
+        width: 140px;
+      }
+      @keyframes ambientDrift {
+        50% {
+          transform: translateY(16px) rotate(6deg);
+        }
+      }
+      .ambient-sparkle {
+        animation: sparkleTwinkleAmb 2.4s ease-in-out infinite;
+        cursor: pointer;
+        filter: drop-shadow(0 0 6px currentColor);
+        height: 22px;
+        pointer-events: auto;
+        position: absolute;
+        transition: transform 0.25s ease;
+        width: 22px;
+      }
+      .ambient-sparkle:hover {
+        transform: scale(1.35) rotate(10deg);
+      }
+      .ambient-sparkle.a {
+        color: var(--coral);
+        left: 22%;
+        top: 32%;
+      }
+      .ambient-sparkle.b {
+        animation-delay: -1s;
+        color: var(--lilac);
+        right: 24%;
+        top: 62%;
+      }
+      .ambient-sparkle.c {
+        animation-delay: -1.8s;
+        color: var(--teal);
+        left: 42%;
+        top: 8%;
+      }
+      @keyframes sparkleTwinkleAmb {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: scale(0.8) rotate(0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.15) rotate(18deg);
+        }
+      }
+      .ambient-ring {
+        animation: ambientSpin 34s linear infinite;
+        border: 1.5px dashed #23958b73;
+        border-radius: 50%;
+        cursor: pointer;
+        pointer-events: auto;
+        position: absolute;
+        transition: transform 0.3s ease;
+      }
+      .ambient-ring:hover {
+        transform: scale(1.08);
+      }
+      @keyframes ambientSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .ambient-dust {
+        inset: 0;
+        position: absolute;
+      }
+      .ambient-dust i {
+        animation: ambientDust 6s ease-in-out infinite;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 6px #fff;
+        opacity: 0.7;
+        position: absolute;
+      }
+      @keyframes ambientDust {
+        50% {
+          opacity: 0.15;
+          transform: translateY(-16px);
+        }
+      }
+      .ambient-grid {
+        animation: ambientGridIn 1.5s ease both;
+        background-image: linear-gradient(#12151022 1px, transparent 1px),
+          linear-gradient(90deg, #12151022 1px, transparent 1px);
+        background-size: 34px 34px;
+        inset: 0;
+        mask-image: radial-gradient(ellipse 65% 55% at 68% 30%, #000 35%, transparent 78%);
+        -webkit-mask-image: radial-gradient(ellipse 65% 55% at 68% 30%, #000 35%, transparent 78%);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      @keyframes ambientGridIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .ambient-ribbon {
+        animation: ambientRibbon 10s ease-in-out infinite;
+        opacity: 0.55;
+        position: absolute;
+      }
+      @keyframes ambientRibbon {
+        50% {
+          transform: translateY(10px) rotate(4deg);
+        }
+      }
+      @media (max-width: 700px) {
+        .ambient-glass,
+        .ambient-ring,
+        .ambient-grid,
+        .ambient-ribbon {
+          display: none;
+        }
+        .ambient-orb {
+          filter: blur(1px);
+          opacity: 0.5;
+        }
+        .ambient-orb.pink {
+          height: 90px;
+          left: -12%;
+          top: -6%;
+          width: 90px;
+        }
+        .ambient-orb.yellow {
+          height: 110px;
+          right: -14%;
+          top: 4%;
+          width: 110px;
+        }
+        .ambient-orb.teal {
+          bottom: 2%;
+          height: 90px;
+          left: -14%;
+          width: 90px;
+        }
+        .ambient-sparkle.c {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ambient-orb,
+        .ambient-glass,
+        .ambient-sparkle,
+        .ambient-ring,
+        .ambient-dust i,
+        .ambient-ribbon {
+          animation: none !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>HACKTUDO 2026</h1>
-      <p>Placeholder estrutural. A experiência visual será criada pela equipe de frontend.</p>
+    <header>
+      <nav class="wrap">
+        <a class="brand" href="#top"></a>
+        <div class="navlinks" id="navlinks">
+          <a href="#como">Como funciona</a><a href="#experiencia">Experiência</a
+          ><a href="#" data-open-app="demo-intro">Demonstração</a>
+        </div>
+        <a class="btn primary nav-cta" href="#comece">Começar agora ↗</a
+        ><button class="menu" aria-label="Abrir menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </header>
+    <main id="top">
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">Tecnologia que encontra pessoas</span>
+            <h1>Aprender entra em <em>flow.</em></h1>
+            <p class="lead">
+              Organize quando e para quê os smartphones entram em uma atividade — tecnologia no momento certo da aula.
+            </p>
+            <div class="actions">
+              <a class="btn primary" href="#" data-open-app="teacher-login">Criar atividade</a
+              ><a class="btn quiet" href="#" data-open-app="student-login">Entrar com código</a>
+            </div>
+            <a class="hero-note" href="#" data-open-app="demo-intro"
+              ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="15" height="15">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" />
+                <path d="M10 8.5v7l6-3.5-6-3.5Z" fill="currentColor" /></svg
+              ><span>Experimentar demonstração →</span></a
+            >
+          </div>
+          <div class="flow" aria-label="Diagrama animado do fluxo de aprendizagem">
+            <div class="orbit"></div>
+            <div class="core">
+              <img class="core-logo" src="img/raposa.png" alt="" /><span class="core-name">FLOWROOM</span>
+            </div>
+            <div class="chip one">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8" />
+                <line
+                  x1="15.5"
+                  y1="15.5"
+                  x2="20.5"
+                  y2="20.5"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                /></svg
+              >Investigar
+            </div>
+            <div class="chip two">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M3 6.5A2.5 2.5 0 0 1 5.5 4h7A2.5 2.5 0 0 1 15 6.5v4A2.5 2.5 0 0 1 12.5 13H9l-3.4 2.8V13H5.5A2.5 2.5 0 0 1 3 10.5v-4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M17 9.2h.5A2.5 2.5 0 0 1 20 11.7v3.8A2.5 2.5 0 0 1 17.5 18H17l.02 2.6L14 18h-1.2"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                /></svg
+              >Discutir
+            </div>
+            <div class="chip three">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 18h6M10 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <path
+                  d="M12 3a6.5 6.5 0 0 0-3.8 11.8c.6.44.8 1 .8 1.7v.5h6v-.5c0-.7.2-1.26.8-1.7A6.5 6.5 0 0 0 12 3Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                /></svg
+              >Criar
+            </div>
+            <div class="chip four">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.6" />
+                <circle cx="18" cy="6" r="2.4" stroke="currentColor" stroke-width="1.6" />
+                <circle cx="18" cy="18" r="2.4" stroke="currentColor" stroke-width="1.6" />
+                <path
+                  d="M8.1 10.8 15.9 7.2M8.1 13.2l7.8 3.6"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                /></svg
+              >Compartilhar
+            </div>
+            <div class="caption"><strong>Seu próximo passo</strong>Uma ideia para experimentar</div>
+          </div>
+        </div>
+      </section>
+      <section class="steps" id="como">
+        <div class="wrap">
+          <div class="intro">
+            <div>
+              <span class="eyebrow">A jornada FLOW</span>
+              <h2>Três passos para sair do automático.</h2>
+            </div>
+            <p>Clique em uma etapa para explorar o que acontece na experiência do aluno.</p>
+          </div>
+          <div class="step-grid">
+            <article class="step active" tabindex="0" role="button" aria-label="Ver Investigar">
+              <div class="step-art-frame">
+                <img
+                  class="step-art"
+                  src="img/mao-quebra-cabeca.png"
+                  alt="Pessoa encaixando peças de quebra-cabeça em um cérebro"
+                />
+              </div>
+              <small>01 / 03</small>
+              <h3>Investigar</h3>
+              <p>Uma pergunta boa abre espaço para observar, buscar e levantar hipóteses.</p>
+            </article>
+            <article class="step" tabindex="0" role="button" aria-label="Ver Discutir">
+              <div class="step-art-frame">
+                <img
+                  class="step-art"
+                  src="img/911838255814570866-removebg-preview.png"
+                  alt="Bocas falando com balões de fala coloridos"
+                />
+              </div>
+              <small>02 / 03</small>
+              <h3>Discutir</h3>
+              <p>A tela pausa. As ideias circulam. A resposta começa a ganhar muitas vozes.</p>
+            </article>
+            <article class="step" tabindex="0" role="button" aria-label="Ver Criar">
+              <div class="step-art-frame">
+                <img
+                  class="step-art"
+                  src="img/24_Digital_Marketing_Tips_That_HubSpot_Swears_By__Research_-removebg-preview.png"
+                  alt="Caderno com anotações, lápis e uma lâmpada acesa"
+                />
+              </div>
+              <small>03 / 03</small>
+              <h3>Criar</h3>
+              <p>O que a turma descobriu vira uma produção com sentido, autoria e intenção.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="app" id="experiencia">
+        <div class="wrap app-grid">
+          <div>
+            <span class="eyebrow">Na palma da mão</span>
+            <h2>Uma experiência que sabe quando aparecer.</h2>
+            <p>
+              No celular do aluno, cada etapa é clara, leve e visual. A tecnologia conduz o próximo passo sem roubar a
+              cena da conversa.
+            </p>
+            <ul class="checks">
+              <li>Atividades com progresso em tempo real</li>
+              <li>Missões distribuídas por grupo</li>
+              <li>Feedback que chega na hora certa</li>
+            </ul>
+          </div>
+          <div class="phone-wrap">
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="phone-top"><span>9:41</span><span>▮▮▮ ◉</span></div>
+              <div class="phone-body">
+                <span class="pill">ETAPA 1 DE 3</span>
+                <h3>Olhe ao redor</h3>
+                <p>Colete uma pista e encontre algo que desperte sua curiosidade.</p>
+                <div class="bar-label"><span>Seu caminho</span><span class="percent">34%</span></div>
+                <div class="bar"><i style="width: 34%"></i></div>
+                <div class="task">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 2c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7Z"
+                      fill="currentColor"
+                    /></svg
+                  >Encontre uma pista para o seu grupo
+                </div>
+                <button class="phone-btn">Pronto para avançar →</button>
+              </div>
+            </div>
+            <div class="badge">+1 ideia nova<small>Seu grupo está voando!</small></div>
+          </div>
+        </div>
+      </section>
+      <section class="final" id="comece">
+        <div class="wrap">
+          <span class="eyebrow">Seu próximo passo começa aqui</span>
+          <h2>Não é um celular para cada aluno.<br />É a função certa, no momento certo.</h2>
+          <div class="actions" style="justify-content: center; margin-top: 27px">
+            <a class="btn" href="#" data-open-app="teacher-login">Criar atividade</a
+            ><a class="btn quiet" href="#" data-open-app="student-login">Entrar com código</a>
+          </div>
+        </div>
+      </section>
     </main>
+    <footer>
+      <div class="wrap">
+        <div class="foot-top">
+          <a class="brand" href="#top"><span>FLOW</span></a>
+          <div class="foot-links">
+            <a href="#como">Como funciona</a><a href="#" data-open-app="demo-intro">Experimentar demonstração</a
+            ><a href="mailto:oi@flow.education">Fale com a gente</a>
+          </div>
+        </div>
+        <div class="foot-bottom">
+          <span>FLOW — tecnologia com propósito na sala de aula.</span><span>© 2026 FLOW Educação</span>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const menu = document.querySelector(".menu"),
+        nav = document.querySelector(".navlinks");
+      menu.addEventListener("click", () => {
+        const open = nav.classList.toggle("open");
+        menu.setAttribute("aria-expanded", open);
+      });
+      nav.querySelectorAll("a").forEach((a) =>
+        a.addEventListener("click", () => {
+          nav.classList.remove("open");
+          menu.setAttribute("aria-expanded", "false");
+        }),
+      );
+      const data = [
+        [
+          "ETAPA 1 DE 3",
+          "Olhe ao redor",
+          "Colete uma pista e encontre algo que desperte sua curiosidade.",
+          "34%",
+          "Encontre uma pista para o seu grupo",
+          "var(--coral)",
+        ],
+        [
+          "ETAPA 2 DE 3",
+          "Hora de conectar",
+          "Compare suas descobertas com o grupo e encontre um padrão.",
+          "72%",
+          "Compartilhe uma ideia com seu grupo",
+          "var(--lilac)",
+        ],
+        [
+          "ETAPA 3 DE 3",
+          "Mostre sua ideia",
+          "Transforme o que vocês descobriram em algo que todos possam ver.",
+          "100%",
+          "Registre a criação do seu grupo",
+          "var(--yellow)",
+        ],
+      ];
+      const steps = document.querySelectorAll(".step"),
+        pill = document.querySelector(".pill"),
+        title = document.querySelector(".phone h3"),
+        desc = document.querySelector(".phone-body p"),
+        bar = document.querySelector(".bar i"),
+        percent = document.querySelector(".percent"),
+        task = document.querySelector(".task"),
+        badge = document.querySelector(".badge"),
+        phoneBtn = document.querySelector(".phone-btn");
+      const sparkIcon =
+        '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7Z" fill="currentColor"/></svg>';
+      function choose(i) {
+        const d = data[i];
+        steps.forEach((s, n) => s.classList.toggle("active", n === i));
+        pill.textContent = d[0];
+        title.textContent = d[1];
+        desc.textContent = d[2];
+        bar.style.width = d[3];
+        percent.textContent = d[3];
+        task.innerHTML = sparkIcon + d[4];
+        badge.style.background = d[5];
+        phoneBtn.classList.remove("done");
+        phoneBtn.innerHTML = "Pronto para avançar →";
+        document.querySelector("#experiencia").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      steps.forEach((s, i) => {
+        s.addEventListener("click", () => choose(i));
+        s.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            choose(i);
+          }
+        });
+      });
+      phoneBtn.addEventListener("click", () => {
+        phoneBtn.classList.add("done");
+        phoneBtn.innerHTML = "Etapa concluída ✓";
+        badge.innerHTML = "+1 conquista<small>Continue nesse ritmo!</small>";
+      });
+    </script>
+    <section class="app-layer" id="flowApp" aria-label="Aplicação FlowRoom">
+      <div class="app-bar">
+        <a class="app-brand brand" href="#top" data-exit-app></a>
+        <div class="app-tabs" role="tablist" aria-label="Áreas do FlowRoom">
+          <button class="app-tab" data-go="choose" role="tab">Visão geral</button
+          ><button class="app-tab" data-go="student-login" role="tab">Aluno</button
+          ><button class="app-tab" data-go="teacher-login" role="tab">Professor</button
+          ><button class="app-tab" data-go="demo-intro" role="tab">Demonstração</button>
+        </div>
+        <button class="app-close" data-exit-app>Voltar para home</button>
+      </div>
+      <div class="app-wrap">
+        <section class="app-page active" data-page="choose">
+          <span class="app-kicker">Uma aula com intenção</span>
+          <h1 class="app-heading">A tecnologia entra quando tem algo a fazer.</h1>
+          <p class="app-copy">Escolha uma experiência para explorar o FlowRoom como aluno, professor ou banca.</p>
+          <div class="app-grid">
+            <button class="app-choice" data-go="student-login">
+              <span class="app-icon"
+                ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="7.5" r="3.6" stroke="currentColor" stroke-width="1.7" />
+                  <path
+                    d="M4.5 20c0-4.1 3.4-7 7.5-7s7.5 2.9 7.5 7"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  /></svg></span
+              ><strong>Entrar como aluno</strong>
+              <p>Use o código da sala e descubra a função que só você recebeu.</p></button
+            ><button class="app-choice" data-go="teacher-login">
+              <span class="app-icon"
+                ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="7" y="3" width="10" height="13" rx="1.6" stroke="currentColor" stroke-width="1.6" />
+                  <path
+                    d="M9.5 7.5h5M9.5 10.5h5M9.5 13.5h3"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M5 21c.3-2.6 2.2-4.4 4.8-4.7"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  /></svg></span
+              ><strong>Área do professor</strong>
+              <p>Entre, crie uma atividade, abra uma sala e conduza sua turma.</p></button
+            ><button class="app-choice" data-go="demo-intro">
+              <span class="app-icon"
+                ><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7" />
+                  <path d="M10 8.5v7l6-3.5-6-3.5Z" fill="currentColor" /></svg></span
+              ><strong>Experimentar demo</strong>
+              <p>Conheça o fluxo completo em uma simulação interativa de 90 segundos.</p>
+            </button>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-login">
+          <button class="app-back" data-go="choose">← Escolher outra experiência</button
+          ><span class="app-kicker">Entrada do aluno</span>
+          <h1 class="app-heading">Entre na atividade.</h1>
+          <p class="app-copy">Sem cadastro, senha ou perfil. Só o código que o professor compartilhou.</p>
+          <form class="app-form" data-form="student">
+            <div class="field">
+              <label for="roomInput">Código da sala</label><input id="roomInput" value="K7P2X" maxlength="5" required />
+            </div>
+            <div class="field">
+              <label for="nameInput">Seu nome</label
+              ><input id="nameInput" placeholder="Como podemos chamar você?" required />
+            </div>
+            <div class="form-actions"><button class="app-btn">Entrar na sala →</button></div>
+            <p class="app-note">Ao entrar, você recebe uma função. A resposta completa nasce do grupo.</p>
+          </form>
+        </section>
+        <section class="app-page" data-page="student-wait">
+          <span class="flow-status">Você entrou</span>
+          <h1 class="app-heading">Aguardando o professor iniciar a atividade...</h1>
+          <p class="app-copy">O código e o nome bastaram — o grupo e a função já foram atribuídos a você.</p>
+          <div class="room-layout">
+            <div class="app-card">
+              <span class="app-kicker">Seu grupo</span>
+              <h2 id="studentGroupHeading" style="font-family: &quot;Space Grotesk&quot;; font-size: 3rem; margin-top: 12px">
+                Grupo 2
+              </h2>
+              <p class="app-note" id="studentGroupCode" hidden>Código do grupo: <strong></strong></p>
+              <p class="app-note" style="font-size: 1rem; color: var(--deep); font-weight: 700; margin-top: 4px">
+                Sua função: Pesquisador
+              </p>
+              <div class="member-list">
+                <div class="member"><b>Você</b><small>conectado</small></div>
+                <div class="member"><b>Ana</b><small>conectada</small></div>
+                <div class="member"><b>Bia</b><small>conectada</small></div>
+                <div class="member"><b>João</b><small class="pending">conectando...</small></div>
+              </div>
+            </div>
+            <div class="app-card" style="text-align: center">
+              <span class="app-kicker">Enquanto isso</span>
+              <p
+                style="font-size: 1.35rem; color: var(--deep); font-family: &quot;Space Grotesk&quot;; margin-top: 16px"
+              >
+                Deixe a curiosidade encontrar você.
+              </p>
+              <p class="app-note">A próxima tela aparece assim que a atividade começar.</p>
+              <div class="deco-panel">
+                <svg class="deco-sparkle" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <svg class="deco-squiggle" viewBox="0 0 70 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 10c5-8 9 8 14 0s9-8 14 0 9 8 14 0 9-8 14 0"
+                    stroke="currentColor"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                    stroke-dasharray="2 8"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="screen-actions">
+            <button class="app-btn" data-go="student-role">Simular início da atividade →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-role">
+          <div class="step-strip">
+            <span class="step-dot current">01 Investigar</span><span class="step-dot">02 Confrontar</span
+            ><span class="step-dot">03 Concluir</span>
+          </div>
+          <span class="role-tag">DIGITAL</span>
+          <div class="mode-card digital">
+            <span class="app-kicker">Sua função</span>
+            <h2>Perspectiva soviética</h2>
+            <p class="app-copy">
+              Analise o trecho e identifique qual preocupação da União Soviética aparece neste documento.
+            </p>
+            <div class="app-card" style="margin-top: 26px">
+              <span class="app-kicker">Documento</span>
+              <p
+                style="font-family: &quot;Space Grotesk&quot;; font-size: 1.1rem; color: var(--deep); margin-top: 12px"
+              >
+                “A presença de mísseis tão próximos representa uma ameaça direta à nossa segurança.”
+              </p>
+            </div>
+            <div class="screen-actions">
+              <button class="app-btn" data-go="student-done">Concluir minha parte ✓</button>
+            </div>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-done">
+          <span class="flow-status">Parte concluída</span>
+          <h1 class="app-heading">Tudo certo. Sua pista está com o grupo.</h1>
+          <p class="app-copy">Você investigou uma perspectiva diferente. Agora aguarde as outras peças se juntarem.</p>
+          <div class="app-card" style="margin-top: 30px; max-width: 540px">
+            <span class="app-kicker">Progresso do grupo</span>
+            <div class="progress-track"><i style="width: 75%"></i></div>
+            <strong>3 de 4 concluíram</strong>
+            <div class="member-list">
+              <div class="member"><b>Ana</b><span>✓</span></div>
+              <div class="member"><b>Você</b><span>✓</span></div>
+              <div class="member"><b>Bia</b><span>✓</span></div>
+              <div class="member"><b>João</b><small class="pending">aguardando</small></div>
+            </div>
+          </div>
+          <div class="screen-actions">
+            <button class="app-btn" data-go="student-presential">Avançar para o momento presencial →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-presential">
+          <div class="mode-card presential">
+            <span class="app-kicker" style="color: var(--yellow)">Etapa 2 de 3 · Presencial</span>
+            <h2>Agora, a resposta não está na tela.</h2>
+            <p class="app-copy">
+              Reúna-se com seu grupo. Cada pessoa recebeu uma perspectiva diferente. Compartilhem o que descobriram e
+              construam uma explicação juntos.
+            </p>
+            <p style="color: #b9d6cc; font-family: &quot;Space Grotesk&quot;; font-size: 1.3rem; margin-top: 30px">
+              05:00
+            </p>
+            <button class="app-back" data-go="student-conclusion" style="color: #b9d6cc; margin-top: 34px">
+              Simular: o professor avançou a turma →
+            </button>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-conclusion">
+          <div class="step-strip">
+            <span class="step-dot">01 Investigar</span><span class="step-dot">02 Confrontar</span
+            ><span class="step-dot current">03 Concluir</span>
+          </div>
+          <span class="role-tag">DIGITAL</span>
+          <div class="mode-card digital">
+            <span class="app-kicker">Registro do grupo</span>
+            <h2>O que vocês construíram?</h2>
+            <p class="app-copy">Um integrante por grupo envia a conclusão.</p>
+            <div class="field" style="margin-top: 25px">
+              <label for="answerInput">Qual foi a conclusão do grupo?</label
+              ><textarea id="answerInput" placeholder="Escreva a explicação que nasceu da conversa..."></textarea>
+            </div>
+            <button class="app-btn" data-go="student-final">Enviar conclusão →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="student-final">
+          <span class="flow-status">Conclusão enviada</span>
+          <h1 class="app-heading">A atividade encontrou seu ritmo.</h1>
+          <p class="app-copy">
+            Você usou a tecnologia quando ela tinha uma função e deixou a tela de lado quando a conversa era mais
+            importante.
+          </p>
+          <div class="quote-mark">“</div>
+          <p style="font-family: &quot;Space Grotesk&quot;; font-size: 1.35rem; max-width: 520px">
+            Não é um celular para cada aluno. É a função certa, para a pessoa certa, no momento certo.
+          </p>
+          <div class="screen-actions"><button class="app-btn" data-go="choose">Explorar outro fluxo</button></div>
+        </section>
+        <section class="app-page" data-page="teacher-login">
+          <button class="app-back" data-go="choose">← Escolher outra experiência</button
+          ><span class="app-kicker">Entrada do professor</span>
+          <h1 class="app-heading">Organize a próxima conversa.</h1>
+          <p class="app-copy">Entre para criar atividades, abrir salas e acompanhar o ritmo da turma.</p>
+          <form class="app-form" data-form="teacher-login">
+            <div class="field">
+              <label for="teacherEmail">E-mail</label
+              ><input id="teacherEmail" type="email" placeholder="professor@escola.com" required />
+            </div>
+            <div class="field">
+              <label for="teacherPassword">Senha</label
+              ><input id="teacherPassword" type="password" placeholder="Sua senha" required />
+            </div>
+            <div class="form-actions">
+              <button class="app-btn">Entrar →</button
+              ><button class="app-btn alt" type="button" data-go="teacher-register">Criar cadastro</button>
+            </div>
+            <p class="app-note">
+              Nesta versão visual, o acesso é simulado. A autenticação real será conectada ao backend.
+            </p>
+          </form>
+        </section>
+        <section class="app-page" data-page="teacher-register">
+          <button class="app-back" data-go="teacher-login">← Já tenho cadastro</button
+          ><span class="app-kicker">Cadastro do professor</span>
+          <h1 class="app-heading">Crie seu espaço de aula.</h1>
+          <form class="app-form" data-form="teacher-register">
+            <div class="field">
+              <label for="teacherName">Seu nome</label
+              ><input id="teacherName" placeholder="Como a turma chama você?" required />
+            </div>
+            <div class="field">
+              <label for="registerEmail">E-mail</label
+              ><input id="registerEmail" type="email" placeholder="professor@escola.com" required />
+            </div>
+            <div class="field">
+              <label for="registerPassword">Crie uma senha</label
+              ><input
+                id="registerPassword"
+                type="password"
+                placeholder="Mínimo de 6 caracteres"
+                minlength="6"
+                required
+              />
+            </div>
+            <div class="form-actions"><button class="app-btn">Criar cadastro e continuar →</button></div>
+          </form>
+        </section>
+        <section class="app-page" data-page="teacher-create">
+          <button class="app-back" data-go="teacher-login">← Voltar</button
+          ><span class="app-kicker">Nova atividade</span>
+          <h1 class="app-heading">Dê uma intenção para a aula.</h1>
+          <form class="app-form" data-form="activity">
+            <div class="field">
+              <label for="activityTitle">Título da atividade</label
+              ><input id="activityTitle" placeholder="Ex.: Quem evitou o conflito?" required />
+            </div>
+            <div class="field">
+              <label for="activitySubject">Área e turma</label
+              ><input id="activitySubject" placeholder="Ex.: História · 9º ano" required />
+            </div>
+            <div class="field">
+              <label for="activityStages">Quantidade de etapas</label
+              ><select id="activityStages" class="select-like">
+                <option>3 etapas</option>
+                <option>2 etapas</option>
+                <option>4 etapas</option>
+              </select>
+            </div>
+            <p class="app-note">
+              Depois você poderá definir o que é digital, presencial e qual função cada participante recebe.
+            </p>
+            <div class="form-actions"><button class="app-btn">Continuar configuração →</button></div>
+          </form>
+        </section>
+        <section class="app-page" data-page="teacher-activity">
+          <button class="app-back" data-go="choose">← Escolher outra experiência</button
+          ><span class="app-kicker">Área do professor</span>
+          <h1 class="app-heading">Escolha uma atividade para começar.</h1>
+          <div class="app-card" style="margin-top: 30px; max-width: 700px">
+            <span class="role-tag">HISTÓRIA · ENSINO MÉDIO</span>
+            <h2 style="font-family: &quot;Space Grotesk&quot;; font-size: 2rem; margin: 20px 0 8px">
+              Crise dos Mísseis de Cuba
+            </h2>
+            <p class="app-copy">
+              Quem evitou o conflito? Investigue perspectivas diferentes, confronte evidências e construa uma
+              interpretação conjunta.
+            </p>
+            <div class="step-strip">
+              <span class="step-dot current">01 Digital · 8 min</span><span class="step-dot">02 Presencial · 5 min</span
+              ><span class="step-dot">03 Digital · 7 min</span>
+            </div>
+            <button class="app-btn" data-go="teacher-config">Criar sessão →</button
+            ><button class="app-btn alt" data-go="teacher-create" style="margin-left: 8px">Criar atividade</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="teacher-config">
+          <div class="ambient-bg" aria-hidden="true">
+            <div class="ambient-grid"></div>
+            <span class="ambient-orb pink"></span>
+            <span class="ambient-orb yellow"></span>
+            <span class="ambient-orb teal"></span>
+            <span class="ambient-orb coral"></span>
+            <span class="ambient-glass one"></span>
+            <span class="ambient-glass two"></span>
+            <span class="ambient-ring" style="height: 220px; width: 220px; left: 38%; bottom: -60px"></span>
+            <svg class="ambient-ribbon" viewBox="0 0 260 50" width="220" style="left: -30px; bottom: 16%" fill="none" aria-hidden="true">
+              <path
+                d="M0 30 Q50 0 100 22 T260 14"
+                stroke="var(--lilac)"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-dasharray="3 10"
+                opacity="0.8"
+              />
+            </svg>
+            <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <div class="ambient-dust">
+              <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
+              <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
+              <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
+              <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
+              <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
+              <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
+            </div>
+          </div>
+          <button class="app-back" data-go="teacher-activity">← Voltar</button
+          ><span class="app-kicker">Configuração rápida</span>
+          <h1 class="app-heading">Prepare o ritmo da sala.</h1>
+          <form class="app-form" data-form="teacher">
+            <div class="field">
+              <label for="maxStudents">Máximo de alunos na sala</label
+              ><input id="maxStudents" type="number" min="4" max="45" value="36" />
+            </div>
+            <div class="field">
+              <label for="maxDevices">Dispositivos disponíveis na sala</label
+              ><input id="maxDevices" type="number" min="0" max="50" value="20" />
+            </div>
+            <p class="app-note" style="margin-top: -8px; margin-bottom: 17px">
+              Limite da plataforma: até 45 alunos e 50 dispositivos por sala.
+            </p>
+            <div data-mode="group">
+              <div class="field">
+                <label for="groupSize">Tamanho dos grupos</label
+                ><select class="select-like" id="groupSize">
+                  <option>4 alunos</option>
+                  <option>3 alunos</option>
+                  <option>5 alunos</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="deviceCount">Dispositivos por grupo</label
+                ><select class="select-like" id="deviceCount">
+                  <option>2 dispositivos</option>
+                  <option>1 dispositivo</option>
+                  <option>3 dispositivos</option>
+                </select>
+              </div>
+            </div>
+            <p class="app-note" data-mode="individual" hidden>
+              Cada aluno recebe sua própria função — sem divisão em grupos.
+            </p>
+            <p class="app-note">
+              O FlowRoom distribui funções entre os alunos e usa os smartphones apenas onde eles são necessários.
+            </p>
+            <div class="form-actions"><button class="app-btn">Criar sala →</button></div>
+          </form>
+        </section>
+        <section class="app-page" data-page="teacher-lobby">
+          <div class="ambient-bg" aria-hidden="true">
+            <div class="ambient-grid"></div>
+            <span class="ambient-orb pink"></span>
+            <span class="ambient-orb yellow"></span>
+            <span class="ambient-orb teal"></span>
+            <span class="ambient-orb coral"></span>
+            <span class="ambient-glass one"></span>
+            <span class="ambient-glass two"></span>
+            <span class="ambient-ring" style="height: 220px; width: 220px; left: 38%; bottom: -60px"></span>
+            <svg class="ambient-ribbon" viewBox="0 0 260 50" width="220" style="left: -30px; bottom: 16%" fill="none" aria-hidden="true">
+              <path
+                d="M0 30 Q50 0 100 22 T260 14"
+                stroke="var(--lilac)"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-dasharray="3 10"
+                opacity="0.8"
+              />
+            </svg>
+            <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <div class="ambient-dust">
+              <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
+              <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
+              <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
+              <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
+              <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
+              <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
+            </div>
+          </div>
+          <span class="app-kicker">Sala criada</span>
+          <h1 class="app-heading">Convide a turma para entrar.</h1>
+          <div class="room-code">K7P2X</div>
+          <p class="app-note">Acesse flowroom.app e digite o código acima.</p>
+          <div class="room-layout">
+            <div class="app-card">
+              <span class="flow-status">12 alunos conectados</span>
+              <div class="group-grid" data-mode="group">
+                <div class="group-box">
+                  <strong>Grupo 1 <span>4/4</span></strong
+                  ><small>Ana · João · Lucas · Bia</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 2 <span>4/4</span></strong
+                  ><small>Ravi · Lia · Caio · Nina</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 3 <span>3/4</span></strong
+                  ><small>Tom · Eva · Davi</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 4 <span>1/4</span></strong
+                  ><small class="pending">aguardando participantes</small>
+                </div>
+              </div>
+              <div class="member-list" data-mode="individual" hidden>
+                <div class="member"><b>Ana</b><small>Perspectiva EUA</small></div>
+                <div class="member"><b>João</b><small>Linha do tempo</small></div>
+                <div class="member"><b>Lucas</b><small>Documento diplomático</small></div>
+                <div class="member"><b>Bia</b><small>Mapa estratégico</small></div>
+                <div class="member"><b>Ravi</b><small>Perspectiva URSS</small></div>
+                <div class="member"><b>Nina</b><small class="pending">conectando...</small></div>
+              </div>
+            </div>
+            <div class="app-card">
+              <span class="app-kicker">Próximo passo</span>
+              <p
+                style="color: var(--deep); font-family: &quot;Space Grotesk&quot;; font-size: 1.35rem; margin-top: 16px"
+              >
+                Quando todos estiverem prontos, inicie a investigação.
+              </p>
+            </div>
+          </div>
+          <button class="app-btn" data-go="teacher-dashboard" style="margin-top: 25px">Iniciar atividade →</button>
+        </section>
+        <section class="app-page" data-page="teacher-dashboard">
+          <div class="ambient-bg" aria-hidden="true">
+            <div class="ambient-grid"></div>
+            <span class="ambient-orb pink"></span>
+            <span class="ambient-orb yellow"></span>
+            <span class="ambient-orb teal"></span>
+            <span class="ambient-orb coral"></span>
+            <span class="ambient-glass one"></span>
+            <span class="ambient-glass two"></span>
+            <span class="ambient-ring" style="height: 220px; width: 220px; left: 38%; bottom: -60px"></span>
+            <svg class="ambient-ribbon" viewBox="0 0 260 50" width="220" style="left: -30px; bottom: 16%" fill="none" aria-hidden="true">
+              <path
+                d="M0 30 Q50 0 100 22 T260 14"
+                stroke="var(--lilac)"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-dasharray="3 10"
+                opacity="0.8"
+              />
+            </svg>
+            <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+                fill="currentColor"
+              />
+            </svg>
+            <div class="ambient-dust">
+              <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
+              <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
+              <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
+              <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
+              <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
+              <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
+            </div>
+          </div>
+          <span class="app-kicker">Crise dos Mísseis de Cuba · Sala K7P2X</span>
+          <div class="step-strip">
+            <span class="step-dot current">01 Investigação</span><span class="step-dot">02 Confronto</span
+            ><span class="step-dot">03 Conclusão</span>
+          </div>
+          <div class="room-layout">
+            <div class="app-card">
+              <span class="role-tag">HISTÓRIA</span> <span class="role-tag" style="background: var(--lilac)">DIGITAL · 8 MIN</span>
+              <h1 class="app-heading" style="font-size: clamp(2rem, 4vw, 3.8rem)">
+                Cada participante, uma perspectiva.
+              </h1>
+              <p class="app-copy">
+                Os grupos estão analisando documentos diferentes para construir uma resposta conjunta.
+              </p>
+              <div class="progress-track"><i></i></div>
+              <strong data-mode="group">18 / 24 concluíram</strong>
+              <strong data-mode="individual" hidden>18 de 24 alunos concluíram sua parte</strong>
+            </div>
+            <div class="app-card">
+              <span class="app-kicker" data-mode="group">Grupos e funções</span>
+              <span class="app-kicker" data-mode="individual" hidden>Progresso individual</span>
+              <div class="group-grid" data-mode="group">
+                <div class="group-box">
+                  <strong>Grupo 1 <span>4/4 ✓</span></strong>
+                  <small>Ana · João · Lucas · Bia</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 2 <span>3/4</span></strong>
+                  <small>Ravi · Lia · Caio · Nina</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 3 <span>4/4 ✓</span></strong>
+                  <small>Tom · Eva · Davi · Léo</small>
+                </div>
+                <div class="group-box">
+                  <strong>Grupo 4 <span>2/4</span></strong>
+                  <small>Duda · Rafa · Ian · Sofia</small>
+                </div>
+              </div>
+              <div class="member-list" data-mode="individual" hidden>
+                <div class="member"><b>Ana</b><span>Concluído ✓</span></div>
+                <div class="member"><b>Ravi</b><span>Concluído ✓</span></div>
+                <div class="member"><b>João</b><span>82% concluído</span></div>
+                <div class="member"><b>Duda</b><span>55% concluído</span></div>
+                <div class="member"><b>Nina</b><small class="pending">iniciando...</small></div>
+              </div>
+              <p class="flow-status" data-mode="group" style="margin-top: 16px">
+                Destaque: Grupo 1 foi o primeiro a concluir todas as partes.
+              </p>
+              <p class="flow-status" data-mode="individual" style="margin-top: 16px" hidden>
+                Destaque: Ana e Ravi já concluíram e podem ajudar os colegas.
+              </p>
+            </div>
+          </div>
+          <div class="screen-actions">
+            <button class="app-btn" data-go="teacher-presential">Avançar para discussão →</button
+            ><button class="app-btn alt">+2 min</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="teacher-presential">
+          <span class="app-kicker">Etapa 2 de 3</span>
+          <div class="mode-card presential">
+            <span class="role-tag">PRESENCIAL · 5 MIN</span>
+            <h2>Confronto de perspectivas.</h2>
+            <p class="app-copy">
+              Os grupos agora possuem informações complementares e devem construir uma interpretação conjunta.
+            </p>
+            <div class="step-strip">
+              <span class="step-dot" style="background: #39736f; color: #fff">Digital · 8 min</span
+              ><span class="step-dot" style="background: var(--yellow); color: var(--deep)">Presencial · 5 min</span
+              ><span class="step-dot" style="background: #39736f; color: #fff">Digital · 7 min</span>
+            </div>
+          </div>
+          <button class="app-btn" data-go="teacher-conclusion" style="margin-top: 25px">
+            Avançar para conclusão →
+          </button>
+        </section>
+        <section class="app-page" data-page="teacher-conclusion">
+          <span class="app-kicker">Etapa 3 de 3</span>
+          <h1 class="app-heading">Conclusão da turma.</h1>
+          <div class="app-card" style="margin-top: 30px; max-width: 700px">
+            <div class="member-list">
+              <div class="member"><b>Grupo 1</b><span>Enviado ✓</span></div>
+              <div class="member"><b>Grupo 2</b><span>Enviado ✓</span></div>
+              <div class="member"><b>Grupo 3</b><small class="pending">Escrevendo...</small></div>
+              <div class="member"><b>Grupo 4</b><span>Enviado ✓</span></div>
+            </div>
+            <button class="app-btn" data-go="teacher-results" style="margin-top: 25px">Ver resultados →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="teacher-results">
+          <span class="flow-status">Atividade concluída</span>
+          <h1 class="app-heading">A conversa virou síntese.</h1>
+          <div class="result-stat">
+            <div><b>6</b><span>grupos</span></div>
+            <div><b>24</b><span>participantes</span></div>
+            <div><b>6</b><span>conclusões</span></div>
+          </div>
+          <div class="app-card" style="max-width: 700px">
+            <span class="app-kicker">Grupo 1</span>
+            <p style="color: var(--deep); font-family: &quot;Space Grotesk&quot;; font-size: 1.2rem; margin-top: 14px">
+              “O principal fator que impediu o conflito foi a combinação entre pressão diplomática e reconhecimento do
+              risco.”
+            </p>
+          </div>
+          <div class="screen-actions"><button class="app-btn" data-go="choose">Voltar ao início</button></div>
+        </section>
+        <section class="app-page" data-page="demo-intro">
+          <span class="app-kicker">Demonstração · 90 segundos</span>
+          <h1 class="app-heading">Veja a tecnologia entrar e sair no momento certo.</h1>
+          <p class="app-copy">
+            Uma simulação curta do que acontece quando uma turma investiga, conversa e constrói uma resposta em
+            conjunto.
+          </p>
+          <div class="demo-progress"><i></i><i></i><i></i><i></i></div>
+          <button class="app-btn" data-go="demo-one">Começar demo →</button>
+        </section>
+        <section class="app-page" data-page="demo-one">
+          <div class="demo-head">
+            <div>
+              <span class="app-kicker">Demo · 01</span>
+              <h1 class="app-heading">Cada pessoa recebe uma função.</h1>
+              <p class="app-copy">
+                Quatro alunos, um grupo com dois celulares. A tecnologia vai só onde ela é necessária — o resto acontece
+                sem tela.
+              </p>
+            </div>
+            <img
+              class="demo-art"
+              src="img/mao-quebra-cabeca.png"
+              alt="Quatro mãos encaixando juntas as peças de um quebra-cabeça"
+            />
+          </div>
+          <div class="app-grid cols-4">
+            <div class="app-card">
+              <span class="role-tag">PERSPECTIVA EUA</span>
+              <p style="margin-top: 15px">Analise a decisão diplomática.</p>
+            </div>
+            <div class="app-card">
+              <span class="role-tag">PERSPECTIVA URSS</span>
+              <p style="margin-top: 15px">Identifique a preocupação de segurança.</p>
+            </div>
+            <div class="app-card">
+              <span class="role-tag presencial">SINTETIZADOR</span>
+              <p style="margin-top: 15px">Reúna as pistas do grupo e prepare a explicação conjunta.</p>
+            </div>
+            <div class="app-card has-art">
+              <span class="role-tag presencial">QUESTIONADOR</span>
+              <p style="margin-top: 15px">Compare as evidências e procure contradições entre elas.</p>
+              <img
+                class="card-art"
+                src="img/Can_you_recognise_these_famous_Nobel_Prize_winners__-_Delcampe_Blog-removebg-preview.png"
+                alt="Pessoa com um ponto de interrogação amarelo no lugar da cabeça, segurando um bloco de anotações"
+              />
+            </div>
+          </div>
+          <div class="screen-actions">
+            <button class="app-back" data-go="demo-intro">← Anterior</button
+            ><button class="app-btn" data-go="demo-two">Próximo →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="demo-two">
+          <span class="app-kicker">Demo · 02</span>
+          <div class="mode-card presential">
+            <span class="app-kicker" style="color: var(--yellow)">Presencial</span>
+            <h2>Agora, a resposta não está na tela.</h2>
+            <p class="app-copy">O celular deixa de competir pela atenção. As perspectivas se encontram na conversa.</p>
+          </div>
+          <div class="screen-actions" style="margin-top: 25px">
+            <button class="app-back" data-go="demo-one">← Anterior</button
+            ><button class="app-btn" data-go="demo-three">Próximo →</button>
+          </div>
+        </section>
+        <section class="app-page" data-page="demo-three">
+          <span class="app-kicker">Demo · 03</span><span class="flow-status">Conclusão do grupo</span>
+          <h1 class="app-heading">A tecnologia volta com uma função clara.</h1>
+          <p class="app-copy">Um integrante registra a síntese que nasceu da colaboração.</p>
+          <div class="app-card" style="margin-top: 30px; max-width: 600px">
+            <p style="color: var(--deep); font-family: &quot;Space Grotesk&quot;; font-size: 1.25rem">
+              “A crise foi evitada porque diferentes perspectivas foram consideradas antes da decisão.”
+            </p>
+          </div>
+          <div class="screen-actions">
+            <button class="app-back" data-go="demo-two">← Anterior</button
+            ><button class="app-btn" data-go="choose">Recomeçar demo</button
+            ><button class="app-btn alt" data-exit-app>Voltar para home</button>
+          </div>
+        </section>
+      </div>
+    </section>
+    <script>
+      const flowApp = document.querySelector("#flowApp");
+      const appPages = document.querySelectorAll(".app-page");
+      let flowroomMode = "group";
+      const applyMode = () => {
+        document
+          .querySelectorAll("[data-mode]")
+          .forEach((el) => (el.hidden = el.dataset.mode !== flowroomMode));
+      };
+      const showPage = (name) => {
+        appPages.forEach((page) => page.classList.toggle("active", page.dataset.page === name));
+        flowApp.scrollTop = 0;
+        applyMode();
+      };
+      const openApp = (page = "choose") => {
+        flowApp.classList.add("open");
+        showPage(page);
+        document.body.style.overflow = "hidden";
+      };
+      const closeApp = () => {
+        flowApp.classList.remove("open");
+        document.body.style.overflow = "";
+        showPage("choose");
+      };
+      document
+        .querySelectorAll("[data-go]")
+        .forEach((button) => button.addEventListener("click", () => showPage(button.dataset.go)));
+      document.querySelectorAll("[data-exit-app]").forEach((button) =>
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          closeApp();
+        }),
+      );
+      document.querySelectorAll('a[href="#comece"]').forEach((link) =>
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          openApp("choose");
+        }),
+      );
+      document.querySelectorAll("[data-open-app]").forEach((el) =>
+        el.addEventListener("click", (event) => {
+          event.preventDefault();
+          openApp(el.dataset.openApp);
+        }),
+      );
+      document.querySelectorAll("form[data-form]").forEach((form) =>
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const destinations = {
+            student: "student-wait",
+            "teacher-login": "teacher-activity",
+            "teacher-register": "teacher-create",
+            activity: "teacher-config",
+            teacher: "teacher-lobby",
+          };
+          showPage(destinations[form.dataset.form] || "choose");
+        }),
+      );
+    </script>
+    <script src="assets/js/flowroom.js"></script>
   </body>
 </html>
