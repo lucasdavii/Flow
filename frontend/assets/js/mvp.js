@@ -299,12 +299,21 @@
     );
   }
 
+  function stagesForActivity(title) {
+    // Cada sessão recebe cópias das etapas para exibir o tema escolhido, sem mudar o contrato da API.
+    return stages.map((stage) => ({
+      ...stage,
+      instructions: `Sobre “${title}”: ${stage.instructions}`,
+    }));
+  }
+
   async function createSession(form) {
     const title = document.querySelector("#activityTitle").value.trim();
     const groupSize = Number.parseInt(document.querySelector("#groupSize").value, 10);
     setBusy(form, true);
+    const activityStages = stagesForActivity(title);
     const result = await FlowAPI.createSession({
-      activityTitle: title, groupSize, stages, roles,
+      activityTitle: title, groupSize, stages: activityStages, roles,
     });
     setBusy(form, false);
     if (!result.ok) return notice("teacher-config", FlowAPI.describeError(result), true);
