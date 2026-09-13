@@ -4,7 +4,7 @@ O FlowRoom ajuda professores a decidir quando, por quem e para qual finalidade s
 
 > **Status atual:** MVP funcional publicado, com fluxo integrado entre professor, alunos, Flask e Supabase.
 
-[**Acessar o FlowRoom publicado**](https://flowroom-7yml.onrender.com)
+[**Acessar o FlowRoom publicado**](https://flowroom-7vml.onrender.com)
 
 ## O problema
 
