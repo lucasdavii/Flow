@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Criar atividade | FlowRoom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/flowroom.css" />
+    <style>
+      .launch-overlay {
+        align-items: center;
+        background: linear-gradient(150deg, var(--stage-color, var(--yellow)), var(--ink));
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        inset: 0;
+        justify-content: center;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: fixed;
+        text-align: center;
+        transition: opacity 0.35s ease;
+        z-index: 30;
+      }
+      .launch-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .launch-icon {
+        align-items: center;
+        animation: launchBounce 1s ease-in-out infinite;
+        background: #fff;
+        border-radius: 50%;
+        color: var(--ink);
+        display: flex;
+        font-family: "Space Grotesk";
+        font-size: 2.6rem;
+        font-weight: 700;
+        height: 110px;
+        justify-content: center;
+        width: 110px;
+      }
+      @keyframes launchBounce {
+        50% {
+          transform: translateY(-16px) rotate(6deg);
+        }
+      }
+      .launch-overlay h2 {
+        color: #fff;
+        font-size: clamp(1.6rem, 5vw, 2.6rem);
+        letter-spacing: -0.05em;
+        margin: 18px 0 4px;
+      }
+      .launch-overlay p {
+        color: #fffdf8cc;
+        margin: 0;
+        max-width: 40ch;
+      }
+      .launch-confetti {
+        height: 0;
+        position: relative;
+        width: 100%;
+      }
+      .launch-confetti i {
+        animation: confettiRise 1.7s ease-out infinite;
+        background: #fff;
+        border-radius: 2px;
+        bottom: -40px;
+        height: 14px;
+        position: absolute;
+        width: 8px;
+      }
+      .launch-confetti i:nth-child(1) {
+        background: var(--coral);
+        left: 18%;
+      }
+      .launch-confetti i:nth-child(2) {
+        animation-delay: 0.15s;
+        background: var(--pink);
+        left: 34%;
+      }
+      .launch-confetti i:nth-child(3) {
+        animation-delay: 0.3s;
+        background: var(--mint);
+        left: 50%;
+      }
+      .launch-confetti i:nth-child(4) {
+        animation-delay: 0.45s;
+        background: var(--lilac);
+        left: 66%;
+      }
+      .launch-confetti i:nth-child(5) {
+        animation-delay: 0.6s;
+        background: var(--yellow);
+        left: 82%;
+      }
+      @keyframes confettiRise {
+        0% {
+          opacity: 0;
+          transform: translateY(0) rotate(0);
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-70vh) rotate(280deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .launch-icon,
+        .launch-confetti i {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient-bg" aria-hidden="true">
+      <span class="ambient-orb pink"></span>
+      <span class="ambient-orb yellow"></span>
+      <span class="ambient-orb teal"></span>
+      <span class="ambient-glass one"></span>
+      <span class="ambient-glass two"></span>
+      <span class="ambient-ring" style="height: 220px; width: 220px; right: -40px; top: 42%"></span>
+      <svg class="ambient-sparkle a" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg class="ambient-sparkle b" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg class="ambient-sparkle c" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2c.7 4.6 3 6.9 7.6 7.6-4.6.7-6.9 3-7.6 7.6-.7-4.6-3-6.9-7.6-7.6C9 8.9 11.3 6.6 12 2Z"
+          fill="currentColor"
+        />
+      </svg>
+      <div class="ambient-dust">
+        <i style="left: 10%; top: 20%; width: 4px; height: 4px; animation-delay: -0.5s"></i>
+        <i style="left: 30%; top: 70%; width: 3px; height: 3px; animation-delay: -1.5s"></i>
+        <i style="left: 60%; top: 15%; width: 5px; height: 5px; animation-delay: -2.5s"></i>
+        <i style="left: 80%; top: 55%; width: 3px; height: 3px; animation-delay: -3.5s"></i>
+        <i style="left: 45%; top: 85%; width: 4px; height: 4px; animation-delay: -4s"></i>
+        <i style="left: 20%; top: 45%; width: 3px; height: 3px; animation-delay: -1s"></i>
+      </div>
+    </div>
+    <header class="site-header">
+      <a class="brand" href="../index.html"></a>
+      <nav class="top-links"><a href="professor.html">Professor</a><a href="sala.html">Sala</a></nav>
+    </header>
+    <main class="page">
+      <div class="hero-split">
+        <section class="hero">
+          <span class="eyebrow">Nova atividade</span>
+          <h1>Dê uma intenção para a aula.</h1>
+          <p>
+            Uma atividade FlowRoom alterna momentos digitais e presenciais para fazer cada etapa ter uma função clara.
+          </p>
+        </section>
+        <div class="hero-art" style="--blob: var(--lilac)">
+          <img
+            src="../img/1085297210208820912-removebg-preview.png"
+            alt="Livro aberto de onde saem ondas coloridas, representando a criação de uma nova atividade"
+          />
+        </div>
+      </div>
+      <form class="form-card" id="activityForm">
+        <div class="field">
+          <label for="title">Título da atividade</label
+          ><input id="title" placeholder="Ex.: Quem evitou o conflito?" required />
+        </div>
+        <div class="field">
+          <label for="subjectKey">Matéria</label
+          ><select id="subjectKey" required>
+            <option value="history">História</option>
+            <option value="science">Ciências</option>
+            <option value="math">Matemática</option>
+            <option value="language">Língua Portuguesa</option>
+          </select>
+        </div>
+        <div class="field"><label for="turma">Turma</label><input id="turma" placeholder="Ex.: 9º ano" required /></div>
+        <div class="field">
+          <label for="groups">Tamanho dos grupos</label
+          ><select id="groups">
+            <option>4 alunos</option>
+            <option>3 alunos</option>
+            <option>5 alunos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="stages">Etapas</label
+          ><textarea
+            id="stages"
+            placeholder="1. Investigar · Digital · Encontre duas fontes confiáveis
+2. Confrontar · Presencial · Guardem os aparelhos e discutam as descobertas
+3. Concluir · Digital · Registrem a conclusão do grupo"
+            required
+          ></textarea>
+          <span class="hint">Uma etapa por linha, no formato Título · Tipo (Digital, Presencial ou Conclusão) · Instrução.</span>
+        </div>
+        <div class="field">
+          <label for="roles">Funções da turma</label
+          ><textarea
+            id="roles"
+            placeholder="Pesquisador · Digital · Localiza informações no smartphone
+Relator · Presencial · Organiza a síntese falada do grupo"
+            required
+          ></textarea>
+          <span class="hint">Uma função por linha, no formato Nome · Tipo (Digital ou Presencial) · Descrição.</span>
+        </div>
+        <p class="hint" id="formError" role="alert" style="display: none; color: var(--coral); font-weight: 700"></p>
+        <div class="actions"><button class="btn" id="submitActivity">Criar atividade e abrir sala →</button></div>
+      </form>
+    </main>
+    <footer class="footer">O FlowRoom organiza quando o smartphone merece estar na aula.</footer>
+    <div class="launch-overlay" id="launchOverlay" aria-hidden="true">
+      <div class="launch-icon" id="launchIcon">✦</div>
+      <h2 id="launchTitle">Preparando sua sala...</h2>
+      <p id="launchSubtitle">Ligando a animação da matéria.</p>
+      <div class="launch-confetti"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/flowroom.js"></script>
+    <script>
+      function parseStages(text) {
+        return text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line, index) => {
+            const parts = line.split("·").map((part) => part.trim());
+            const title = (parts[0] || "").replace(/^\d+\.\s*/, "");
+            const typeRaw = (parts[1] || "digital").toLowerCase();
+            const type = typeRaw.startsWith("presen")
+              ? "presential"
+              : typeRaw.startsWith("conclu")
+                ? "conclusion"
+                : "digital";
+            return { position: index + 1, title, type, instructions: parts[2] || title };
+          });
+      }
+      function parseRoles(text) {
+        return text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const parts = line.split("·").map((part) => part.trim());
+            const typeRaw = (parts[1] || "digital").toLowerCase();
+            return {
+              name: parts[0] || "",
+              type: typeRaw.startsWith("presen") ? "presential" : "digital",
+              description: parts[2] || "",
+            };
+          });
+      }
+
+      const form = document.querySelector("#activityForm");
+      const errorBox = document.querySelector("#formError");
+      const submitButton = document.querySelector("#submitActivity");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        errorBox.style.display = "none";
+
+        const subjectKey = document.querySelector("#subjectKey").value;
+        const item = window.FLOWROOM_SUBJECTS[subjectKey];
+        const title = document.querySelector("#title").value.trim();
+        const turma = document.querySelector("#turma").value.trim();
+        const groupSize = parseInt(document.querySelector("#groups").value, 10) || 4;
+        const stages = parseStages(document.querySelector("#stages").value);
+        const roles = parseRoles(document.querySelector("#roles").value);
+
+        if (!stages.length || !roles.length) {
+          errorBox.textContent = "Preencha ao menos uma etapa e uma função, uma por linha.";
+          errorBox.style.display = "block";
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Criando sala...";
+
+        const result = await FlowAPI.createSession({ activityTitle: title, groupSize, stages, roles });
+
+        if (!result.ok) {
+          errorBox.textContent = FlowAPI.describeError(result);
+          errorBox.style.display = "block";
+          submitButton.disabled = false;
+          submitButton.textContent = "Criar atividade e abrir sala →";
+          return;
+        }
+
+        const { session, teacher_token } = result.data;
+        FlowAPI.tokens.setTeacher(session.code, teacher_token);
+        sessionStorage.setItem("flowroom_last_teacher_code", session.code);
+        sessionStorage.setItem(
+          "flowroom_activity_" + session.code,
+          JSON.stringify({ title: session.activity_title, subjectKey, turma, stages, groupSize, justCreated: true }),
+        );
+
+        const overlay = document.querySelector("#launchOverlay");
+        overlay.style.setProperty("--stage-color", item.color);
+        const launchIcon = document.querySelector("#launchIcon");
+        launchIcon.innerHTML = item.icon;
+        launchIcon.className = "launch-icon icon-anim-" + item.visual;
+        document.querySelector("#launchSubtitle").textContent =
+          "Ligando a animação de " + item.label.toLowerCase() + ".";
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        setTimeout(() => {
+          window.location.href = "sala.html?code=" + session.code + "&role=teacher";
+        }, 1600);
+      });
+    </script>
+  </body>
+</html>
