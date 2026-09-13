@@ -1119,9 +1119,21 @@
         border-radius: 12px;
         padding: 14px;
       }
-      .group-box strong {
+      .group-box-heading {
+        align-items: center;
         display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px;
         justify-content: space-between;
+      }
+      .group-box strong {
+        white-space: nowrap;
+      }
+      .group-count {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
       }
       .group-box small {
         color: var(--muted);

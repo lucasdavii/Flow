@@ -98,15 +98,19 @@
     groups.forEach((group) => {
       const card = document.createElement("div");
       card.className = "group-box";
+      const header = document.createElement("div");
+      header.className = "group-box-heading";
       const heading = document.createElement("strong");
-      heading.textContent = `Grupo ${group.number} `;
+      heading.textContent = `Grupo ${group.number}`;
       const count = document.createElement("span");
+      count.className = "group-count";
       count.textContent = `${group.members.length} participante(s)`;
-      heading.append(count);
       const members = document.createElement("small");
       members.textContent = group.members.map((member) =>
         `${member.name} · ${member.role_name}`).join(" | ");
-      card.append(heading, members);
+      // Separar título e quantidade impede que palavras do nome do grupo quebrem no layout responsivo.
+      header.append(heading, count);
+      card.append(header, members);
       container.append(card);
     });
   }
@@ -263,7 +267,9 @@
       return show("student-presential");
     }
     page("student-role").querySelector("h2").textContent = participant.role.name;
-    page("student-role").querySelector(".app-copy").textContent = stage.instructions;
+    // A descrição vem da API e explica por que a função recebida é importante antes da tarefa da etapa.
+    page("student-role").querySelector(".app-copy").textContent =
+      `Sua missão: ${participant.role.description} Agora, ${stage.instructions.charAt(0).toLowerCase()}${stage.instructions.slice(1)}`;
     page("student-role").querySelector(".role-tag").textContent =
       participant.role.type.toUpperCase();
     if (!participant.current_stage_completed) {
