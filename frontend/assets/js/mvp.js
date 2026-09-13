@@ -16,6 +16,10 @@
   const roles = [
     { name: "pesquisador", type: "digital",
       description: "Localiza informações no smartphone." },
+    { name: "verificador", type: "digital",
+      description: "Use o celular para conferir autoria, data e confiabilidade de uma evidência." },
+    { name: "questionador", type: "presential",
+      description: "Sem usar a tela, formule uma pergunta que ajude o grupo a confrontar as evidências." },
     { name: "relator", type: "presential",
       description: "Organiza a síntese falada do grupo." },
   ];
