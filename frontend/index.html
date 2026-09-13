@@ -1664,11 +1664,78 @@
         .app-btn {
           max-width: 100%;
           white-space: normal;
+          width: 100%;
         }
         .field input,
         .field textarea,
         .select-like {
           font-size: 16px;
+        }
+        .form-actions {
+          flex-direction: column;
+        }
+        .app-heading {
+          font-size: clamp(1.85rem, 9vw, 2.6rem);
+          margin: 10px 0 14px;
+        }
+        .group-grid {
+          grid-template-columns: 1fr;
+        }
+        .flow {
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          min-height: auto;
+          padding: 8px 0 4px;
+        }
+        .orbit {
+          display: none;
+        }
+        .core {
+          position: static;
+          transform: none;
+        }
+        .chip {
+          animation: none;
+          justify-content: center;
+          position: static;
+          width: 100%;
+        }
+        .caption {
+          margin-top: 4px;
+          position: static;
+          width: 100%;
+        }
+        .app-wrap {
+          padding-bottom: 28px;
+        }
+        .screen-actions,
+        .form-actions {
+          background: linear-gradient(to top, var(--paper) 62%, #fffdf800);
+          bottom: 0;
+          margin: 18px -14px -30px;
+          padding: 16px 14px calc(env(safe-area-inset-bottom, 0px) + 22px);
+          position: sticky;
+          z-index: 4;
+        }
+        .app-btn {
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .app-btn:active {
+          box-shadow: none;
+          transform: scale(0.96);
+        }
+        .app-card:active {
+          transform: scale(0.99);
+        }
+        .member,
+        .group-box {
+          transition: transform 0.15s ease;
+        }
+        .member:active,
+        .group-box:active {
+          transform: scale(0.98);
         }
       }
       .app-tabs {
