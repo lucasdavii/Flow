@@ -27,3 +27,4 @@ def test_frontend_serves_mvp_api_modules():
     assert mvp.status_code == 200
     assert b"FlowAPI.createSession" in mvp.data
     assert b"FlowAPI.joinSession" in mvp.data
+    assert b"renderGroupMembers" in mvp.data

@@ -131,6 +131,21 @@
     state.teacherTimer = setInterval(refreshTeacher, 2000);
   }
 
+  function renderGroupMembers(container, group, participant, completed) {
+    container.textContent = "";
+    group.members.forEach((member) => {
+      const item = document.createElement("div");
+      item.className = "member";
+      const name = document.createElement("b");
+      name.textContent = member.name;
+      const detail = document.createElement(member.id === participant.id ? "span" : "small");
+      detail.textContent = member.id === participant.id && completed ?
+        "Sua parte concluída ✓" : member.role_name;
+      item.append(name, detail);
+      container.append(item);
+    });
+  }
+
   function renderStudent(data) {
     state.student = data;
     const { session, participant, group } = data;
@@ -138,18 +153,16 @@
     wait.querySelector("#studentGroupHeading").textContent = `Grupo ${group.number}`;
     wait.querySelector(".app-note[style*='font-size']").textContent =
       `Sua função: ${participant.role.name}`;
-    const members = wait.querySelector(".member-list");
-    members.textContent = "";
-    group.members.forEach((member) => {
-      const item = document.createElement("div");
-      item.className = "member";
-      const name = document.createElement("b");
-      name.textContent = member.name;
-      const detail = document.createElement("small");
-      detail.textContent = member.role_name;
-      item.append(name, detail);
-      members.append(item);
-    });
+    renderGroupMembers(wait.querySelector(".member-list"), group, participant, false);
+
+    const done = page("student-done");
+    done.querySelector(".app-kicker").textContent = `Grupo ${group.number}`;
+    done.querySelector(".progress-track").hidden = true;
+    done.querySelector(".app-card strong").textContent =
+      `${group.members.length} participante(s) no grupo`;
+    // A API não expõe o progresso dos colegas; mostramos somente informações reais.
+    renderGroupMembers(done.querySelector(".member-list"), group, participant, true);
+    done.querySelector(".screen-actions").hidden = true;
     if (session.status === "waiting") return show("student-wait");
     if (session.status === "finished") return show("student-final");
     const stage = session.current_stage;
