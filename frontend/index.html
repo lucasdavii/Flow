@@ -233,29 +233,27 @@
       }
       .core {
         align-items: center;
-        background: var(--deep);
-        border-radius: 50%;
-        box-shadow: 0 22px 45px #113c3b3b;
-        color: #fff;
         display: flex;
         flex-direction: column;
-        height: 158px;
+        gap: 3px;
         justify-content: center;
         left: 50%;
         position: absolute;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: 158px;
         z-index: 2;
       }
-      .core strong {
-        font-family: "Space Grotesk";
-        font-size: 1.55rem;
-        letter-spacing: 0.09em;
+      .core-logo {
+        filter: drop-shadow(0 10px 20px #113c3b40);
+        height: 158px;
+        width: auto;
       }
-      .core small {
-        color: #a8d8c9;
-        font-size: 0.77rem;
+      .core-name {
+        color: var(--deep);
+        font-family: "Space Grotesk";
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
       }
       .chip {
         align-items: center;
@@ -595,7 +593,7 @@
         font-weight: 500;
       }
       .final {
-        background: var(--coral);
+        background: var(--mint);
         padding: 82px 0;
         text-align: center;
       }
@@ -720,12 +718,11 @@
           height: 275px;
           width: 275px;
         }
-        .core {
-          height: 115px;
-          width: 115px;
+        .core-logo {
+          height: 122px;
         }
-        .core strong {
-          font-size: 1.2rem;
+        .core-name {
+          font-size: 1rem;
         }
         .chip {
           font-size: 0.72rem;
@@ -1549,15 +1546,11 @@
           height: 245px;
           width: 245px;
         }
-        .core {
-          height: 100px;
-          width: 100px;
+        .core-logo {
+          height: 98px;
         }
-        .core strong {
-          font-size: 1.05rem;
-        }
-        .core small {
-          font-size: 0.65rem;
+        .core-name {
+          font-size: 0.85rem;
         }
         .chip {
           font-size: 0.65rem;
@@ -2023,7 +2016,9 @@
           </div>
           <div class="flow" aria-label="Diagrama animado do fluxo de aprendizagem">
             <div class="orbit"></div>
-            <div class="core"><strong>FLOW</strong><small>o ritmo da aula</small></div>
+            <div class="core">
+              <img class="core-logo" src="img/raposa.png" alt="" /><span class="core-name">FLOWROOM</span>
+            </div>
             <div class="chip one">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8" />
