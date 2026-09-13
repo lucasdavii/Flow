@@ -74,7 +74,6 @@ O MVP cobre o ciclo completo de uma atividade: criação da sala, entrada dos pa
 - `docs/`: contrato da API, arquitetura e fluxo de colaboração.
 - `supabase/`: modelo inicial do banco.
 - `tests/`: testes automatizados.
-- `AGENTS.md` e `CLAUDE.md`: limites de atuação dos agentes.
 
 ## Preparação local
 

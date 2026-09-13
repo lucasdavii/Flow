@@ -1,6 +1,6 @@
 # Contrato oficial da API
 
-Este arquivo é a fonte de verdade entre frontend e backend. Nenhum agente pode alterá-lo sem explicar a proposta e receber aprovação humana.
+Este arquivo é a fonte de verdade entre frontend e backend. Mudanças devem ser discutidas e aprovadas antes da implementação.
 
 ## Convenções
 

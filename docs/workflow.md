@@ -3,8 +3,8 @@
 ## Branches
 
 - `main`: base estável e integrada.
-- `backend-dev`: trabalho do backend com Codex.
-- `frontend-dev`: trabalho do frontend com Claude Code.
+- `backend-dev`: trabalho do backend.
+- `frontend-dev`: trabalho do frontend.
 
 Não é preciso criar outras branches agora. Antes de começar um bloco, atualize sua branch a partir de `main`. Faça commits pequenos e com uma única intenção.
 
@@ -43,7 +43,7 @@ Depois de cada checkpoint: execute a aplicação, rode os testes, corrija proble
 
 ## Divisão prática
 
-- Codex altera `backend/**`, `tests/**` e `supabase/**`.
-- Claude Code altera `frontend/**`.
+- O backend é desenvolvido em `backend/**`, com testes em `tests/**` e scripts de banco em `supabase/**`.
+- O frontend é desenvolvido em `frontend/**`.
 - Mudanças em arquivos compartilhados devem ser pequenas, visíveis e combinadas.
 - Ao integrar, quem estiver responsável revisa `git diff`, resolve conflitos conscientemente e testa o fluxo afetado.
