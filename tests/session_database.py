@@ -103,10 +103,132 @@ def environment(monkeypatch):
     }
 
     def handle(request):
-        table = request.url.path.rsplit("/", 1)[-1]
+        endpoint = request.url.path.rsplit("/", 1)[-1]
         state["requests"].append(request)
         if state["before_request"]:
             state["before_request"](request, state)
+        if endpoint == "submit_conclusion_atomic":
+            values = json.loads(request.content)
+            session = next((s for s in state["rows"]["sessions"]
+                            if s["code"] == values["p_session_code"]), None)
+            participant = next((p for p in state["rows"]["participants"]
+                                if session and p["session_id"] == session["id"]
+                                and p["participant_token_hash"] ==
+                                values["p_participant_token_hash"]), None)
+            stage = next((s for s in state["rows"]["stages"]
+                          if session and s["id"] == session["current_stage_id"]), None)
+            error = None
+            if session is None:
+                error = "SESSION_NOT_FOUND"
+            elif participant is None:
+                error = "INVALID_PARTICIPANT_TOKEN"
+            elif session["status"] != "active":
+                error = "SESSION_NOT_ACTIVE"
+            elif stage is None or stage["type"] != "conclusion":
+                error = "SUBMISSION_NOT_ALLOWED_IN_CURRENT_STAGE"
+            if state["fail_at"] == ("POST", endpoint):
+                error = "internal"
+            if error:
+                return httpx.Response(400, json={"code": "P0001", "message": error, "hint": None, "details": None})
+            submission = next((s for s in state["rows"]["submissions"]
+                               if s["session_id"] == session["id"]
+                               and s["group_number"] == participant["group_number"]), None)
+            now = datetime.now(timezone.utc).isoformat()
+            if submission is None:
+                submission = {
+                    "id": str(uuid4()), "session_id": session["id"],
+                    "group_number": participant["group_number"], "created_at": now,
+                }
+                state["rows"]["submissions"].append(submission)
+            submission.update(content=values["p_content"],
+                              submitted_by=participant["id"], updated_at=now)
+            return httpx.Response(200, json=[deepcopy(submission)])
+        if endpoint == "complete_role_atomic":
+            values = json.loads(request.content)
+            session = next((s for s in state["rows"]["sessions"]
+                            if s["code"] == values["p_session_code"]), None)
+            participant = next((p for p in state["rows"]["participants"]
+                                if session and p["session_id"] == session["id"]
+                                and p["participant_token_hash"] ==
+                                values["p_participant_token_hash"]), None)
+            error = None
+            if session is None:
+                error = "SESSION_NOT_FOUND"
+            elif participant is None:
+                error = "INVALID_PARTICIPANT_TOKEN"
+            elif session["status"] != "active":
+                error = "SESSION_NOT_ACTIVE"
+            elif session["current_stage_id"] != values["p_stage_id"]:
+                error = "STAGE_NOT_CURRENT"
+            if state["fail_at"] == ("POST", endpoint):
+                error = "internal"
+            if error:
+                return httpx.Response(400, json={"code": "P0001", "message": error, "hint": None, "details": None})
+            completion = next((r for r in state["rows"]["role_completions"]
+                               if r["participant_id"] == participant["id"]
+                               and r["stage_id"] == values["p_stage_id"]), None)
+            if completion is None:
+                completion = {
+                    "id": str(uuid4()), "participant_id": participant["id"],
+                    "stage_id": values["p_stage_id"],
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
+                }
+                state["rows"]["role_completions"].append(completion)
+            return httpx.Response(200, json=[{
+                key: completion[key]
+                for key in ("participant_id", "stage_id", "completed_at")
+            }])
+        if endpoint == "join_session_atomic":
+            values = json.loads(request.content)
+            session = next(
+                (
+                    row for row in state["rows"]["sessions"]
+                    if row["code"] == values["p_session_code"]
+                ),
+                None,
+            )
+            if session is None:
+                return httpx.Response(404, json={
+                    "code": "P0002", "message": "SESSION_NOT_FOUND",
+                })
+            if session["status"] != "waiting":
+                return httpx.Response(400, json={
+                    "code": "P0001", "message": "SESSION_ALREADY_STARTED",
+                })
+
+            roles = sorted(
+                state["rows"]["roles"],
+                key=lambda role: (role["created_at"], role["id"]),
+            )
+            participant_count = len([
+                row for row in state["rows"]["participants"]
+                if row["session_id"] == session["id"]
+            ])
+            role = roles[
+                (participant_count % session["group_size"]) % len(roles)
+            ]
+            participant = {
+                "id": str(uuid4()),
+                "session_id": session["id"],
+                "role_id": role["id"],
+                "name": values["p_name"],
+                "group_number": participant_count // session["group_size"] + 1,
+                "participant_token_hash": values["p_token_hash"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            state["rows"]["participants"].append(participant)
+            return httpx.Response(200, json=[{
+                "participant_id": participant["id"],
+                "participant_name": participant["name"],
+                "group_number": participant["group_number"],
+                "role_id": role["id"],
+                "role_name": role["name"],
+                "role_type": role["type"],
+                "role_description": role["description"],
+                "session_status": session["status"],
+            }])
+
+        table = endpoint
         if state["fail_at"] == (request.method, table):
             return httpx.Response(500, json={
                 "code": "XX000", "message": "Detalhes internos do banco",

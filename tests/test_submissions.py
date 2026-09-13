@@ -128,7 +128,7 @@ def test_submission_unknown_session(conclusion_environment):
 
 
 @pytest.mark.parametrize("operation", [
-    ("GET", "sessions"), ("GET", "participants"), ("POST", "submissions"),
+    ("POST", "submit_conclusion_atomic"),
 ])
 def test_submission_hides_database_errors(conclusion_environment, operation):
     client, state = conclusion_environment

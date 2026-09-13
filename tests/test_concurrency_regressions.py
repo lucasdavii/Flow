@@ -1,12 +1,10 @@
-"""Regressões de concorrência reproduzidas sem acessar banco real.
+"""Falhas conhecidas de concorrência reproduzidas sem acessar banco real.
 
-O transporte simulado exerce a RPC de entrada atômica e mantém os cenários
-de operações sobrepostas ainda fora do escopo desta correção como xfail.
+O gancho intercala requisições entre a leitura e a gravação via MockTransport.
+As expectativas descrevem a consistência exigida das operações transacionais.
 """
 
 from collections import Counter
-
-import pytest
 
 from tests.session_database import (
     PARTICIPANT_TOKEN, STAGE_ID, TEACHER_TOKEN, environment,
@@ -39,15 +37,13 @@ def test_concurrent_joins_respect_group_size(environment):
     assert group_counts == {1: 2, 2: 1}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A entrada e o início precisam serializar o estado na mesma transação.",
-)
 def test_join_rejects_insert_after_concurrent_start(environment):
     client, state = environment
 
     def start_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/participants"):
+        if request.method == "POST" and request.url.path.endswith(
+            "/rpc/join_session_atomic"
+        ):
             state["before_request"] = None
             response = client.post(
                 "/api/sessions/K7P2X/start",
@@ -66,10 +62,6 @@ def test_join_rejects_insert_after_concurrent_start(environment):
     assert len(state["rows"]["participants"]) == 1
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A validação da etapa e a conclusão precisam compartilhar transação.",
-)
 def test_completion_rejects_insert_after_concurrent_advance(environment):
     client, state = environment
     state["rows"]["sessions"][0].update(
@@ -77,7 +69,7 @@ def test_completion_rejects_insert_after_concurrent_advance(environment):
     )
 
     def advance_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/role_completions"):
+        if request.method == "POST" and request.url.path.endswith("/complete_role_atomic"):
             state["before_request"] = None
             response = client.post(
                 "/api/sessions/K7P2X/next",
@@ -98,10 +90,6 @@ def test_completion_rejects_insert_after_concurrent_advance(environment):
     assert state["rows"]["role_completions"] == []
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="A validação do estado e a submissão precisam compartilhar transação.",
-)
 def test_submission_rejects_insert_after_concurrent_finish(environment):
     client, state = environment
     state["rows"]["sessions"][0].update(
@@ -113,7 +101,7 @@ def test_submission_rejects_insert_after_concurrent_finish(environment):
     state["rows"]["stages"][0]["type"] = "conclusion"
 
     def finish_before_insert(request, state):
-        if request.method == "POST" and request.url.path.endswith("/submissions"):
+        if request.method == "POST" and request.url.path.endswith("/submit_conclusion_atomic"):
             state["before_request"] = None
             response = client.post(
                 "/api/sessions/K7P2X/next",

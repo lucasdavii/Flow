@@ -97,8 +97,7 @@ def test_completion_unknown_session(active_environment):
 
 
 @pytest.mark.parametrize("operation", [
-    ("GET", "sessions"), ("GET", "participants"),
-    ("POST", "role_completions"), ("GET", "role_completions"),
+    ("POST", "complete_role_atomic"),
 ])
 def test_completion_hides_database_errors(active_environment, operation):
     client, state = active_environment

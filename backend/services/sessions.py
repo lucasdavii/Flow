@@ -1,8 +1,6 @@
 """Regras de negócio para criação e gerenciamento de sessões."""
 
-import ast
 import hashlib
-import json
 import logging
 import re
 import secrets
@@ -357,23 +355,13 @@ def _count_participants(database: Any, session_id: str) -> int:
     return response.count if response.count is not None else len(response.data)
 
 
-def _rpc_error_code(error: Exception) -> str:
-    code = str(getattr(error, "code", "") or "").upper()
-    if code not in {"", "400"}:
-        return code
-    details = getattr(error, "details", "")
-    if isinstance(details, str) and details.startswith("b'"):
-        try:
-            details = ast.literal_eval(details).decode("utf-8")
-        except (SyntaxError, UnicodeDecodeError, ValueError):
+def _join_database_error_code(error: Exception) -> str | None:
+    """Traduz somente os erros de negócio emitidos pela função transacional."""
+    error_text = f"{getattr(error, 'message', '')} {error}".upper()
+    for code in ("SESSION_NOT_FOUND", "SESSION_ALREADY_STARTED"):
+        if code in error_text:
             return code
-    try:
-        body = json.loads(
-            details.decode("utf-8") if isinstance(details, bytes) else details
-        )
-    except (TypeError, UnicodeDecodeError, json.JSONDecodeError):
-        return code
-    return str(body.get("code", code)).upper()
+    return None
 
 
 def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any]:
@@ -386,47 +374,48 @@ def join_session(code: Any, payload: Any, database: Any = None) -> dict[str, Any
     client = _get_database(database, JoinSessionError)
     participant_token = secrets.token_urlsafe(32)
     try:
-        response = client.rpc(
-            "join_session_atomic",
-            {
-                "p_code": normalized_code,
-                "p_name": name,
-                # O token bruto volta ao aluno uma vez; um vazamento do
-                # banco não deve permitir reutilizar a credencial original.
-                "p_token_hash": _hash_token(participant_token),
-            },
-        ).execute()
+        response = (
+            # A função mantém leitura, distribuição de grupo e inserção na
+            # mesma transação para impedir vagas duplicadas sob concorrência.
+            client.rpc(
+                "join_session_atomic",
+                {
+                    "p_session_code": normalized_code,
+                    "p_name": name,
+                    # O token bruto volta ao aluno uma vez; um vazamento do
+                    # banco não deve permitir reutilizar a credencial original.
+                    "p_token_hash": _hash_token(participant_token),
+                },
+            )
+            .execute()
+        )
     except Exception as error:
-        error_code = _rpc_error_code(error)
-        if error_code == "P0001":
+        error_code = _join_database_error_code(error)
+        if error_code == "SESSION_NOT_FOUND":
             raise SessionNotFoundError from error
-        if error_code == "P0002":
+        if error_code == "SESSION_ALREADY_STARTED":
             raise SessionAlreadyStartedError from error
         raise JoinSessionError from error
 
-    if not response.data or not isinstance(response.data, dict):
+    if not response.data:
         raise JoinSessionError
+    result = response.data[0]
 
-    try:
-        participant = response.data["participant"]
-        role = participant["role"]
-        return {
-            "participant": {
-                "id": participant["id"],
-                "name": participant["name"],
-                "group_number": participant["group_number"],
-                "role": {
-                    "id": role["id"],
-                    "name": role["name"],
-                    "type": role["type"],
-                    "description": role["description"],
-                },
+    return {
+        "participant": {
+            "id": result["participant_id"],
+            "name": result["participant_name"],
+            "group_number": result["group_number"],
+            "role": {
+                "id": result["role_id"],
+                "name": result["role_name"],
+                "type": result["role_type"],
+                "description": result["role_description"],
             },
-            "participant_token": participant_token,
-            "session_status": response.data["session_status"],
-        }
-    except (KeyError, TypeError) as error:
-        raise JoinSessionError from error
+        },
+        "participant_token": participant_token,
+        "session_status": result["session_status"],
+    }
 
 
 def _load_session_state(database: Any, code: str) -> dict[str, Any]:
@@ -780,6 +769,18 @@ def _active_participant(
     return session, participant
 
 
+def _completion_database_error_code(error: Exception) -> str | None:
+    """Reconhece apenas conflitos previstos pelo contrato de complete-role."""
+    error_text = f"{getattr(error, 'message', '')} {error}".upper()
+    expected_codes = (
+        "SESSION_NOT_FOUND",
+        "INVALID_PARTICIPANT_TOKEN",
+        "SESSION_NOT_ACTIVE",
+        "STAGE_NOT_CURRENT",
+    )
+    return next((code for code in expected_codes if code in error_text), None)
+
+
 def complete_role(
     code: Any, participant_token: Any, payload: Any, database: Any = None
 ) -> dict[str, Any]:
@@ -795,33 +796,26 @@ def complete_role(
     if not isinstance(participant_token, str) or not participant_token.strip():
         raise ParticipantTokenRequiredError
 
+    try:
+        token_hash = _hash_token(participant_token.strip())
+    except UnicodeEncodeError:
+        raise InvalidParticipantTokenError from None
+
     client = _get_database(database, RoleCompletionError)
     try:
-        session, participant = _active_participant(
-            client, normalized_code, participant_token.strip()
-        )
-        if session["current_stage"]["id"] != stage_id:
-            raise StageNotCurrentError
         response = (
-            client.table("role_completions")
-            .upsert(
-                {"participant_id": participant["id"], "stage_id": stage_id},
-                on_conflict="participant_id,stage_id",
-                ignore_duplicates=True,
+            # A função bloqueia a sessão até validar e gravar, impedindo que
+            # uma troca de etapa aconteça entre essas duas ações.
+            client.rpc(
+                "complete_role_atomic",
+                {
+                    "p_session_code": normalized_code,
+                    "p_participant_token_hash": token_hash,
+                    "p_stage_id": stage_id,
+                },
             )
             .execute()
         )
-        if not response.data:
-            # ON CONFLICT DO NOTHING preserva a primeira data de conclusão,
-            # inclusive quando dois pedidos tentam inserir a mesma marcação.
-            response = (
-                client.table("role_completions")
-                .select("participant_id,stage_id,completed_at")
-                .eq("participant_id", participant["id"])
-                .eq("stage_id", stage_id)
-                .limit(1)
-                .execute()
-            )
         if not response.data:
             raise RoleCompletionError
         completion = response.data[0]
@@ -829,12 +823,18 @@ def complete_role(
             field: completion[field]
             for field in ("participant_id", "stage_id", "completed_at")
         }}
-    except (
-        SessionNotFoundError, InvalidParticipantTokenError,
-        SessionNotActiveError, StageNotCurrentError, RoleCompletionError,
-    ):
-        raise
     except Exception as error:
+        if isinstance(error, RoleCompletionError):
+            raise
+        error_code = _completion_database_error_code(error)
+        if error_code == "SESSION_NOT_FOUND":
+            raise SessionNotFoundError from error
+        if error_code == "INVALID_PARTICIPANT_TOKEN":
+            raise InvalidParticipantTokenError from error
+        if error_code == "SESSION_NOT_ACTIVE":
+            raise SessionNotActiveError from error
+        if error_code == "STAGE_NOT_CURRENT":
+            raise StageNotCurrentError from error
         raise RoleCompletionError from error
 
 
@@ -849,27 +849,20 @@ def submit_conclusion(
     if not isinstance(participant_token, str) or not participant_token.strip():
         raise ParticipantTokenRequiredError
 
+    try:
+        token_hash = _hash_token(participant_token.strip())
+    except UnicodeEncodeError:
+        raise InvalidParticipantTokenError from None
+
     client = _get_database(database, SubmissionError)
     try:
-        session, participant = _active_participant(
-            client, normalized_code, participant_token.strip()
-        )
-        if session["current_stage"]["type"] != "conclusion":
-            raise SubmissionNotAllowedError
-        response = (
-            client.table("submissions")
-            .upsert(
-                {
-                    "session_id": session["id"],
-                    "group_number": participant["group_number"],
-                    "submitted_by": participant["id"],
-                    "content": content,
-                    "updated_at": datetime.now(timezone.utc).isoformat(),
-                },
-                on_conflict="session_id,group_number",
-            )
-            .execute()
-        )
+        # Validação e gravação compartilham o bloqueio da sessão com next,
+        # impedindo aceitar uma conclusão depois do encerramento.
+        response = client.rpc("submit_conclusion_atomic", {
+            "p_session_code": normalized_code,
+            "p_participant_token_hash": token_hash,
+            "p_content": content,
+        }).execute()
         if not response.data:
             raise SubmissionError
         submission = response.data[0]
@@ -880,12 +873,19 @@ def submit_conclusion(
                 "created_at", "updated_at",
             )
         }}
-    except (
-        SessionNotFoundError, InvalidParticipantTokenError,
-        SessionNotActiveError, SubmissionNotAllowedError, SubmissionError,
-    ):
+    except SubmissionError:
         raise
     except Exception as error:
+        error_message = getattr(error, "message", None)
+        expected_errors = {
+            "SESSION_NOT_FOUND": SessionNotFoundError,
+            "INVALID_PARTICIPANT_TOKEN": InvalidParticipantTokenError,
+            "SESSION_NOT_ACTIVE": SessionNotActiveError,
+            "SUBMISSION_NOT_ALLOWED_IN_CURRENT_STAGE": SubmissionNotAllowedError,
+        }
+        error_type = expected_errors.get(error_message)
+        if error_type is not None:
+            raise error_type from error
         raise SubmissionError from error
 
 
